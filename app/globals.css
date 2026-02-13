@@ -14,9 +14,16 @@
     --neon-saturation: 100%;
     --neon-lightness: 50%;
     --neon: var(--neon-hue) var(--neon-saturation) var(--neon-lightness);
+
+    --neon2-hue: 210;
+    --neon2-saturation: 100%;
+    --neon2-lightness: 50%;
+    --neon2: var(--neon2-hue) var(--neon2-saturation) var(--neon2-lightness);
+
     --neon-glow-sm: 0 0 5px hsl(var(--neon) / 0.4);
     --neon-glow-md: 0 0 15px hsl(var(--neon) / 0.3), 0 0 30px hsl(var(--neon) / 0.15);
     --neon-glow-lg: 0 0 20px hsl(var(--neon) / 0.4), 0 0 40px hsl(var(--neon) / 0.2), 0 0 80px hsl(var(--neon) / 0.1);
+    --neon2-glow: 0 0 15px hsl(var(--neon2) / 0.3), 0 0 30px hsl(var(--neon2) / 0.15);
 
     --background: 220 15% 5%;
     --foreground: 210 20% 92%;
@@ -60,11 +67,10 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 }
 
-/* Glassmorphism utility */
+/* Glassmorphism */
 .glass {
   background: hsl(220 15% 8% / 0.6);
   backdrop-filter: blur(16px);
@@ -73,13 +79,39 @@
 }
 
 .glass-strong {
-  background: hsl(220 15% 8% / 0.8);
+  background: hsl(220 15% 8% / 0.85);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid hsl(var(--neon) / 0.15);
 }
 
-/* Neon border animation */
+/* Dual-neon border */
+.dual-neon-border {
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+.dual-neon-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, hsl(var(--neon)), hsl(var(--neon2)));
+  z-index: -1;
+  opacity: 0.6;
+}
+
+.dual-neon-border::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: hsl(var(--background));
+  z-index: -1;
+}
+
+/* Animated neon border */
 @keyframes neon-rotate {
   0% { --angle: 0deg; }
   100% { --angle: 360deg; }
@@ -100,7 +132,7 @@
   position: absolute;
   inset: -2px;
   border-radius: inherit;
-  background: conic-gradient(from var(--angle), transparent 60%, hsl(var(--neon)) 80%, transparent 100%);
+  background: conic-gradient(from var(--angle), transparent 50%, hsl(var(--neon)) 70%, hsl(var(--neon2)) 85%, transparent 100%);
   animation: neon-rotate 3s linear infinite;
   z-index: -1;
 }
@@ -120,6 +152,11 @@
   text-shadow: 0 0 7px hsl(var(--neon) / 0.6), 0 0 20px hsl(var(--neon) / 0.3);
 }
 
+.neon2-text {
+  color: hsl(var(--neon2));
+  text-shadow: 0 0 7px hsl(var(--neon2) / 0.6), 0 0 20px hsl(var(--neon2) / 0.3);
+}
+
 /* Neon ring hover */
 .neon-ring {
   box-shadow: 0 0 0 2px hsl(var(--neon) / 0.3);
@@ -130,7 +167,21 @@
   box-shadow: 0 0 0 2px hsl(var(--neon) / 0.6), var(--neon-glow-md);
 }
 
-/* Scrollbar styling */
+/* Dual neon ring (pulsating for Network Hub) */
+@keyframes dual-ring-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px hsl(var(--neon) / 0.4), 0 0 0 6px hsl(var(--neon2) / 0.2), 0 0 15px hsl(var(--neon) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 3px hsl(var(--neon) / 0.7), 0 0 0 6px hsl(var(--neon2) / 0.5), 0 0 30px hsl(var(--neon) / 0.5);
+  }
+}
+
+.dual-neon-ring {
+  animation: dual-ring-pulse 2s ease-in-out infinite;
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -149,17 +200,17 @@
   background: hsl(var(--neon) / 0.5);
 }
 
-/* Pulse animation for badges */
+/* Badge pulse */
 @keyframes neon-pulse {
   0%, 100% { opacity: 1; box-shadow: 0 0 5px hsl(var(--neon) / 0.5); }
-  50% { opacity: 0.8; box-shadow: 0 0 20px hsl(var(--neon) / 0.8); }
+  50% { opacity: 0.85; box-shadow: 0 0 20px hsl(var(--neon) / 0.8); }
 }
 
 .neon-pulse {
   animation: neon-pulse 2s ease-in-out infinite;
 }
 
-/* Red blink for psychological field */
+/* Red blink */
 @keyframes red-blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
@@ -171,7 +222,19 @@
   text-shadow: 0 0 10px hsl(0 90% 55% / 0.6);
 }
 
-/* Countdown neon animation */
+/* Red strobe for anti-intruder */
+@keyframes red-strobe {
+  0%, 100% { background-color: hsl(0 90% 45%); }
+  25% { background-color: hsl(0 100% 20%); }
+  50% { background-color: hsl(0 90% 55%); }
+  75% { background-color: hsl(0 100% 15%); }
+}
+
+.red-strobe {
+  animation: red-strobe 0.15s linear infinite;
+}
+
+/* Countdown glow */
 @keyframes countdown-glow {
   0%, 100% { text-shadow: 0 0 10px hsl(var(--neon) / 0.6), 0 0 30px hsl(var(--neon) / 0.3); }
   50% { text-shadow: 0 0 20px hsl(var(--neon) / 0.9), 0 0 60px hsl(var(--neon) / 0.5); }
@@ -179,4 +242,53 @@
 
 .countdown-glow {
   animation: countdown-glow 1s ease-in-out infinite;
+}
+
+/* Social proof notification */
+@keyframes slide-in-up {
+  0% { transform: translateY(100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slide-out-down {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
+.social-proof-in {
+  animation: slide-in-up 0.5s ease-out forwards;
+}
+
+.social-proof-out {
+  animation: slide-out-down 0.5s ease-in forwards;
+}
+
+/* Gold mode overrides */
+.gold-mode {
+  --neon-hue: 45;
+  --neon-saturation: 90%;
+  --neon-lightness: 55%;
+}
+
+/* 3D Carousel perspective */
+.perspective-container {
+  perspective: 1200px;
+}
+
+/* Geometric countdown segments */
+@keyframes segment-fill {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Trust badge shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.trust-shimmer {
+  background: linear-gradient(90deg, transparent 0%, hsl(var(--neon) / 0.1) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
 }

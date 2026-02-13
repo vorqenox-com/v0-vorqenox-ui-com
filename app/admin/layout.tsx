@@ -12,7 +12,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/login")
+      router.push("/admin-gateway")
     } else {
       setChecked(true)
     }
@@ -21,7 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!checked) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="neon-text font-mono text-sm">Authenticating...</div>
+        <div className="neon-text font-mono text-sm">{"جاري التحقق..."}</div>
       </div>
     )
   }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { ChevronLeft, ChevronRight, Zap } from "lucide-react"
+import { ChevronLeft, ChevronRight, Zap, Crown } from "lucide-react"
 import { useStore } from "@/lib/store"
 import Link from "next/link"
 
@@ -19,9 +19,10 @@ export function TitanSlider() {
   }, [titanArticles.length])
 
   useEffect(() => {
+    if (titanArticles.length <= 1) return
     const timer = setInterval(next, 5000)
     return () => clearInterval(timer)
-  }, [next])
+  }, [next, titanArticles.length])
 
   if (titanArticles.length === 0) return null
 
@@ -30,43 +31,57 @@ export function TitanSlider() {
   return (
     <section className="relative mx-auto max-w-7xl px-4">
       <Link href={`/article/${article.id}`} className="group relative block overflow-hidden rounded-2xl">
-        {/* The neon-border card */}
-        <div
-          className="neon-border relative overflow-hidden rounded-2xl"
-          style={{ minHeight: "340px" }}
-        >
-          <div className="glass relative z-10 flex h-full min-h-[340px] flex-col justify-end rounded-2xl p-8">
-            {/* Prime Badge */}
-            <div className="neon-pulse mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-neon/10 px-3 py-1 text-xs font-semibold text-neon">
-              <Zap className="h-3 w-3" />
-              PRIME
+        {/* Dual-neon gold border card */}
+        <div className="dual-neon-border relative overflow-hidden rounded-2xl" style={{ minHeight: "380px" }}>
+          <div className="glass relative z-10 flex h-full min-h-[380px] flex-col justify-end rounded-2xl p-8">
+            {/* Floating Prime Badges */}
+            <div className="absolute right-6 top-6 flex items-center gap-2">
+              <span
+                className="neon-pulse inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
+                style={{
+                  backgroundColor: "hsl(var(--neon) / 0.15)",
+                  color: "hsl(var(--neon))",
+                }}
+              >
+                <Zap className="h-3 w-3" />
+                PRIME
+              </span>
+              <span
+                className="neon-pulse inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
+                style={{
+                  backgroundColor: "hsl(var(--neon2) / 0.15)",
+                  color: "hsl(var(--neon2))",
+                  animationDelay: "0.5s",
+                }}
+              >
+                <Crown className="h-3 w-3" />
+                TITAN
+              </span>
             </div>
 
+            {/* Content */}
             <span className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {article.category}
             </span>
-            <h2 className="text-balance text-2xl font-bold leading-tight text-foreground md:text-4xl">
+            <h2 className="text-balance text-2xl font-bold leading-tight text-foreground md:text-4xl lg:text-5xl">
               {article.title}
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
               {article.excerpt}
             </p>
 
-            {/* Dots */}
+            {/* Pagination dots */}
             <div className="mt-6 flex items-center gap-2">
               {titanArticles.map((_, i) => (
                 <button
                   key={i}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    setCurrent(i)
+                  onClick={(e) => { e.preventDefault(); setCurrent(i) }}
+                  className="h-2 rounded-full transition-all"
+                  style={{
+                    width: i === current ? "2rem" : "0.5rem",
+                    backgroundColor: i === current ? "hsl(var(--neon))" : "hsl(var(--muted-foreground) / 0.3)",
+                    boxShadow: i === current ? "var(--neon-glow-sm)" : "none",
                   }}
-                  className={`h-2 rounded-full transition-all ${
-                    i === current
-                      ? "w-8 bg-neon"
-                      : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                  }`}
-                  style={i === current ? { boxShadow: "var(--neon-glow-sm)" } : {}}
                 >
                   <span className="sr-only">Slide {i + 1}</span>
                 </button>
@@ -76,22 +91,32 @@ export function TitanSlider() {
         </div>
       </Link>
 
-      {/* Nav arrows */}
+      {/* Navigation arrows */}
       {titanArticles.length > 1 && (
         <>
           <button
             onClick={prev}
-            className="neon-ring absolute left-6 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-card/80 backdrop-blur-sm transition-colors hover:bg-accent"
+            className="absolute left-6 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full transition-colors"
+            style={{
+              backgroundColor: "hsl(var(--card) / 0.8)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid hsl(var(--neon) / 0.2)",
+            }}
+            aria-label="Previous slide"
           >
             <ChevronLeft className="h-5 w-5 text-foreground" />
-            <span className="sr-only">Previous slide</span>
           </button>
           <button
             onClick={next}
-            className="neon-ring absolute right-6 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-card/80 backdrop-blur-sm transition-colors hover:bg-accent"
+            className="absolute right-6 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full transition-colors"
+            style={{
+              backgroundColor: "hsl(var(--card) / 0.8)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid hsl(var(--neon) / 0.2)",
+            }}
+            aria-label="Next slide"
           >
             <ChevronRight className="h-5 w-5 text-foreground" />
-            <span className="sr-only">Next slide</span>
           </button>
         </>
       )}

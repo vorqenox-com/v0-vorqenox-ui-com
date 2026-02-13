@@ -6,7 +6,9 @@ import { TitanSlider } from "@/components/public/titan-slider"
 import { PremiumSlider } from "@/components/public/premium-slider"
 import { ArticlesGrid } from "@/components/public/articles-grid"
 import { NetworkSection } from "@/components/public/network-section"
-import { AdSlotComponent, HeavyAdOverlay } from "@/components/public/ad-slot"
+import { AdSlotComponent, HeavyAdZone } from "@/components/public/ad-slot"
+import { Footer } from "@/components/public/footer"
+import { SocialProofNotifications } from "@/components/public/social-proof"
 import { useEffect } from "react"
 
 export default function HomePage() {
@@ -16,7 +18,6 @@ export default function HomePage() {
   useEffect(() => {
     if (!silentRefresh) return
     const timer = setInterval(() => {
-      // Triggers a silent page refresh cycle
       window.dispatchEvent(new CustomEvent("vorqenox:refresh"))
     }, 30000)
     return () => clearInterval(timer)
@@ -26,6 +27,8 @@ export default function HomePage() {
     switch (id) {
       case "titan":
         return <TitanSlider key={id} />
+      case "ad-heavy":
+        return <HeavyAdZone key={id} />
       case "premium":
         return <PremiumSlider key={id} />
       case "ad-top":
@@ -47,24 +50,17 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Heavy Ad Overlay */}
-      <HeavyAdOverlay />
+      {/* Social Proof Notifications */}
+      <SocialProofNotifications />
 
       {/* Dynamic Section Rendering */}
-      <main className="flex flex-col gap-8 pb-16 pt-8">
+      <main className="flex flex-col gap-10 pb-16 pt-8">
         {sectionOrder
           .filter((s) => s.visible)
           .map((section) => renderSection(section.id))}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-8">
-        <div className="mx-auto max-w-7xl px-4 text-center">
-          <p className="text-xs text-muted-foreground">
-            {"Vorqenox // All Rights Reserved // 2026"}
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
