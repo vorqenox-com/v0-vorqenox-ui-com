@@ -1,32 +1,62 @@
 "use client"
 
-import { useStore } from "@/lib/store"
 import { Header } from "@/components/public/header"
 import { Footer } from "@/components/public/footer"
-import { LandingGate } from "@/components/public/landing-gate"
 import { SocialProofNotifications } from "@/components/public/social-proof"
-import { ArrowLeft, Calendar, Tag, Zap, Table } from "lucide-react"
+import { ArrowLeft, Calendar, Tag, Zap, Table, ExternalLink } from "lucide-react"
 import Link from "next/link"
-import { useState, useCallback, useEffect, use } from "react"
+import { useState, useEffect, use } from "react"
+import useSWR from "swr"
+import { createClient } from "@/lib/supabase/client"
 
-function CounterSection({ article }: { article: { counterMode: string; counterFixed: number; counterMin: number; counterMax: number; targetUrl: string } }) {
+interface ArticleData {
+  id: string
+  title: string
+  slug: string
+  content: string
+  main_image: string | null
+  target_url: string
+  card_type: string
+  show_ads: boolean
+  show_landing_page: boolean
+  counter_type: string
+  counter_value_min: number
+  counter_value_max: number
+  specs: Array<{ key: string; value: string }> | null
+  seo_metadata: { description?: string; keywords?: string } | null
+  created_at: string
+}
+
+async function fetchArticle(key: string): Promise<ArticleData | null> {
+  const id = key.replace("article-", "")
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("articles")
+    .select("*")
+    .eq("id", id)
+    .single()
+
+  if (error) return null
+  return data
+}
+
+function CounterSection({ article }: { article: ArticleData }) {
   const [count, setCount] = useState<number | null>(null)
   const [finished, setFinished] = useState(false)
 
   useEffect(() => {
-    if (article.counterMode === "fixed") {
-      // Mode A: Fixed countdown
-      setCount(article.counterFixed)
+    if (article.counter_type === "fixed") {
+      // Use counter_value_min as the countdown value for fixed mode
+      setCount(article.counter_value_min)
     } else {
-      // Mode B: Random number (simulating active users/stock)
-      const random = Math.floor(Math.random() * (article.counterMax - article.counterMin + 1)) + article.counterMin
+      // Random mode: pick a random number between min and max
+      const random = Math.floor(Math.random() * (article.counter_value_max - article.counter_value_min + 1)) + article.counter_value_min
       setCount(random)
     }
   }, [article])
 
-  // Fixed countdown timer
   useEffect(() => {
-    if (article.counterMode !== "fixed" || count === null || count <= 0) return
+    if (article.counter_type !== "fixed" || count === null || count <= 0) return
     const timer = setInterval(() => {
       setCount((c) => {
         if (c === null || c <= 1) {
@@ -37,23 +67,30 @@ function CounterSection({ article }: { article: { counterMode: string; counterFi
       })
     }, 1000)
     return () => clearInterval(timer)
-  }, [article.counterMode, count])
+  }, [article.counter_type, count])
 
-  // Random mode: mark finished after 3 seconds
   useEffect(() => {
-    if (article.counterMode !== "random") return
+    if (article.counter_type !== "random") return
     const timer = setTimeout(() => setFinished(true), 3000)
     return () => clearTimeout(timer)
-  }, [article.counterMode])
+  }, [article.counter_type])
+
+  // Traffic wash: always link to intermediate page with 5s countdown
+  const ctaHref = article.show_landing_page
+    ? `/go/${article.id}`
+    : article.target_url || "#"
 
   return (
-    <div className="glass-strong rounded-2xl p-6 text-center" style={{ boxShadow: "var(--neon-glow-sm)" }}>
+    <div
+      className="rounded-2xl p-6 text-center backdrop-blur-md border border-white/10 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
+      style={{ background: "hsl(220 15% 8% / 0.85)" }}
+    >
       <p className="mb-4 text-xs uppercase tracking-wider text-muted-foreground">
-        {article.counterMode === "fixed" ? "Time Remaining" : "Active Users Right Now"}
+        {article.counter_type === "fixed" ? "Time Remaining" : "Active Users Right Now"}
       </p>
 
       <div className="mb-4" suppressHydrationWarning>
-        {article.counterMode === "fixed" ? (
+        {article.counter_type === "fixed" ? (
           <span className="countdown-glow font-mono text-5xl font-black" style={{ color: "hsl(var(--neon))" }} suppressHydrationWarning>
             {count ?? 0}s
           </span>
@@ -65,8 +102,8 @@ function CounterSection({ article }: { article: { counterMode: string; counterFi
       </div>
 
       {finished && (
-        <a
-          href={article.targetUrl || "#"}
+        <Link
+          href={ctaHref}
           className="neon-pulse mt-2 inline-flex items-center gap-2 rounded-xl px-8 py-3.5 text-sm font-bold uppercase tracking-wider transition-all"
           style={{
             backgroundColor: "hsl(var(--neon2))",
@@ -76,7 +113,7 @@ function CounterSection({ article }: { article: { counterMode: string; counterFi
         >
           <Zap className="h-4 w-4" />
           Continue
-        </a>
+        </Link>
       )}
     </div>
   )
@@ -84,30 +121,18 @@ function CounterSection({ article }: { article: { counterMode: string; counterFi
 
 export default function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
-  const { articles, adSlots } = useStore()
-  const article = articles.find((a) => a.id === resolvedParams.id)
-  const [showLanding, setShowLanding] = useState(false)
-  const [gateCleared, setGateCleared] = useState(false)
+  const { data: article, isLoading } = useSWR(
+    `article-${resolvedParams.id}`,
+    fetchArticle
+  )
 
-  useEffect(() => {
-    if (article?.showLandingPage && !gateCleared) {
-      setShowLanding(true)
-    }
-  }, [article, gateCleared])
-
-  const handleGatePass = useCallback(() => {
-    setShowLanding(false)
-    setGateCleared(true)
-  }, [])
-
-  // Auto-refresh
-  useEffect(() => {
-    if (!article?.autoRefresh) return
-    const timer = setInterval(() => {
-      window.dispatchEvent(new CustomEvent("vorqenox:refresh"))
-    }, 15000)
-    return () => clearInterval(timer)
-  }, [article?.autoRefresh])
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-[hsl(var(--neon))]" />
+      </div>
+    )
+  }
 
   if (!article) {
     return (
@@ -121,16 +146,6 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
       </div>
     )
   }
-
-  // Show landing gate if enabled
-  if (showLanding && !gateCleared) {
-    return <LandingGate onPass={handleGatePass} />
-  }
-
-  const hasAds = article.showAds
-  const topAd = adSlots.find((a) => a.position === "top" && a.active)
-  const middleAd = adSlots.find((a) => a.position === "middle" && a.active)
-  const bottomAd = adSlots.find((a) => a.position === "bottom" && a.active)
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-[1440px] border-x border-white/5 bg-[#050505] text-white shadow-2xl">
@@ -148,9 +163,9 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
         </Link>
 
         {/* Featured Image */}
-        {article.image ? (
+        {article.main_image ? (
           <img
-            src={article.image}
+            src={article.main_image}
             alt={article.title}
             className="mb-6 w-full rounded-2xl object-cover"
             style={{ maxHeight: "400px" }}
@@ -175,11 +190,11 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
               style={{ backgroundColor: "hsl(var(--neon) / 0.1)", color: "hsl(var(--neon))" }}
             >
               <Tag className="h-3 w-3" />
-              {article.category}
+              {article.specs?.find((s) => s.key === "Category")?.value ?? "General"}
             </span>
             <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
               <Calendar className="h-3 w-3" />
-              {article.createdAt}
+              {article.created_at}
             </span>
           </div>
 
@@ -187,23 +202,26 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
             {article.title}
           </h1>
           <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-            {article.excerpt}
+            {article.seo_metadata?.description ?? article.content?.slice(0, 200)}
           </p>
         </div>
 
         {/* Ad Slot - Top */}
-        {hasAds && topAd && (
+        {article.show_ads && (
           <div className="mb-6 flex items-center justify-center rounded-xl border border-dashed border-border bg-card/40 px-4 py-8">
-            <span className="text-xs text-muted-foreground">{topAd.content} - Ad (Top)</span>
+            <span className="text-xs text-muted-foreground">Ad (Top)</span>
           </div>
         )}
 
         {/* Article Content */}
-        <div className="glass-strong rounded-2xl p-6 md:p-8">
+        <div
+          className="rounded-2xl p-6 md:p-8 backdrop-blur-md border border-white/10 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
+          style={{ background: "hsl(220 15% 8% / 0.85)" }}
+        >
           <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">
             <p>{article.content}</p>
             <p>
-              This article explores cutting-edge developments in {article.category.toLowerCase()}.
+              This article explores cutting-edge developments in {(article.specs?.find((s) => s.key === "Category")?.value ?? "technology").toLowerCase()}.
               Our research team has compiled the latest findings and analysis to bring you
               comprehensive coverage of this rapidly evolving field.
             </p>
@@ -216,9 +234,9 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
         </div>
 
         {/* Ad Slot - Middle */}
-        {hasAds && middleAd && (
+        {article.show_ads && (
           <div className="my-6 flex items-center justify-center rounded-xl border border-dashed border-border bg-card/40 px-4 py-8">
-            <span className="text-xs text-muted-foreground">{middleAd.content} - Ad (Middle)</span>
+            <span className="text-xs text-muted-foreground">Ad (Middle)</span>
           </div>
         )}
 
@@ -230,7 +248,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
               <h3 className="text-lg font-semibold text-foreground">Specifications</h3>
             </div>
             <div className="divide-y divide-border">
-              {article.specs.map((spec, i) => (
+              {article.specs.map((spec: { key: string; value: string }, i: number) => (
                 <div key={i} className="flex items-center justify-between py-3">
                   <span className="flex items-center gap-2 text-sm text-muted-foreground">
                     <span
@@ -246,15 +264,15 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
           </div>
         )}
 
-        {/* Primary Action Area: Counter System */}
+        {/* Primary Action Area: Counter System + Traffic Wash CTA */}
         <div className="my-8">
           <CounterSection article={article} />
         </div>
 
         {/* Ad Slot - Bottom */}
-        {hasAds && bottomAd && (
+        {article.show_ads && (
           <div className="mt-6 flex items-center justify-center rounded-xl border border-dashed border-border bg-card/40 px-4 py-8">
-            <span className="text-xs text-muted-foreground">{bottomAd.content} - Ad (Bottom)</span>
+            <span className="text-xs text-muted-foreground">Ad (Bottom)</span>
           </div>
         )}
       </article>

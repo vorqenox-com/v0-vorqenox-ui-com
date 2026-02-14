@@ -78,14 +78,14 @@ export default function AdminOverview() {
       change: "+12%",
     },
     {
-      label: "Titan Articles",
-      value: mounted ? articles.filter((a) => a.cardType === "titan").length.toString() : "...",
+      label: "Featured Articles",
+      value: mounted ? articles.filter((a) => a.cardType === "featured").length.toString() : "...",
       icon: Zap,
       change: null,
     },
     {
-      label: "Premium Articles",
-      value: mounted ? articles.filter((a) => a.cardType === "premium").length.toString() : "...",
+      label: "Normal Articles",
+      value: mounted ? articles.filter((a) => a.cardType === "normal").length.toString() : "...",
       icon: Clock,
       change: null,
     },
