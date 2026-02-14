@@ -21,21 +21,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!checked) {
     return (
-      <div className="flex min-h-screen items-center justify-center" style={{ background: "#050505" }}>
+      <div
+        className="flex h-screen items-center justify-center"
+        style={{ background: "#050505" }}
+      >
         <div className="flex flex-col items-center gap-4">
           <div
-            className="flex h-14 w-14 items-center justify-center rounded-xl"
+            className="flex h-14 w-14 items-center justify-center rounded-2xl"
             style={{
-              background: "hsl(var(--neon) / 0.08)",
-              boxShadow: "0 0 20px hsl(var(--neon) / 0.2)",
+              background: "rgba(34, 211, 238, 0.08)",
+              boxShadow: "0 0 20px rgba(34, 211, 238, 0.2)",
             }}
           >
-            <Shield className="h-7 w-7 animate-pulse" style={{ color: "hsl(var(--neon))" }} />
+            <Shield className="h-7 w-7 animate-pulse text-cyan-400" />
           </div>
-          <p
-            className="font-mono text-sm tracking-widest"
-            style={{ color: "hsl(var(--neon))" }}
-          >
+          <p className="font-mono text-sm tracking-widest text-cyan-400">
             VERIFYING ACCESS...
           </p>
         </div>
@@ -44,10 +44,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex min-h-screen" style={{ background: "#050505" }}>
+    <div className="flex h-screen max-w-full overflow-hidden" style={{ background: "#050505" }}>
       <AdminSidebar />
-      <div className="flex flex-1 flex-col overflow-auto">
-        <div className="mx-auto w-full max-w-[1200px] px-6 py-6">
+      <div className="flex flex-1 flex-col overflow-y-auto">
+        <div className="w-full px-8 py-6">
           {children}
         </div>
       </div>
