@@ -1,34 +1,104 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { createClient } from "@/lib/supabase/client"
+import type { User } from "@supabase/supabase-js"
 
 type Role = "super-admin" | "sub-admin" | null
 
 interface AuthContextType {
   isAuthenticated: boolean
   role: Role
-  login: (role: Role) => void
-  logout: () => void
+  user: User | null
+  loading: boolean
+  login: (password: string) => Promise<{ error?: string }>
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [role, setRole] = useState<Role>(null)
+const ADMIN_EMAIL = "Vorqenox@gmail.com"
+const SUPER_PASSWORD = "Elfr3onela3zamx430#"
 
-  const login = (r: Role) => {
-    setIsAuthenticated(true)
-    setRole(r)
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [role, setRole] = useState<Role>(null)
+  const [loading, setLoading] = useState(true)
+
+  const supabase = createClient()
+
+  useEffect(() => {
+    // Check existing session
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUser(user)
+        setRole("super-admin")
+      }
+      setLoading(false)
+    })
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(session.user)
+        setRole("super-admin")
+      } else {
+        setUser(null)
+        setRole(null)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const login = async (password: string): Promise<{ error?: string }> => {
+    if (password !== SUPER_PASSWORD) {
+      return { error: "ACCESS DENIED" }
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: ADMIN_EMAIL,
+      password: SUPER_PASSWORD,
+    })
+
+    if (error) {
+      // If user doesn't exist yet, sign them up first
+      if (error.message.includes("Invalid login credentials")) {
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: ADMIN_EMAIL,
+          password: SUPER_PASSWORD,
+          options: {
+            data: { role: "super-admin" },
+          },
+        })
+        if (signUpError) {
+          return { error: signUpError.message }
+        }
+        // Try sign in again after signup
+        const { error: retryError } = await supabase.auth.signInWithPassword({
+          email: ADMIN_EMAIL,
+          password: SUPER_PASSWORD,
+        })
+        if (retryError) {
+          return { error: retryError.message }
+        }
+        return {}
+      }
+      return { error: error.message }
+    }
+    return {}
   }
 
-  const logout = () => {
-    setIsAuthenticated(false)
+  const logout = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
     setRole(null)
   }
 
+  const isAuthenticated = !!user
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, role, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, role, user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

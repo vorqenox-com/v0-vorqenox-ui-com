@@ -3,20 +3,23 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
-import { Lock, Eye, EyeOff, Shield, Zap } from "lucide-react"
-
-const SUPER_PASSWORD = "Elfr3onela3zamx430#"
-const SUB_PASSWORD = "SubAdmin2026#"
+import { Lock, Eye, EyeOff, Shield, Zap, Loader2 } from "lucide-react"
 
 export default function AdminGateway() {
-  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [trapped, setTrapped] = useState(false)
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const [scanLines, setScanLines] = useState(false)
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, isAuthenticated, loading } = useAuth()
+
+  // If already authenticated, redirect to admin
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      router.push("/admin")
+    }
+  }, [isAuthenticated, loading, router])
 
   // Scan line animation trigger
   useEffect(() => {
@@ -27,55 +30,27 @@ export default function AdminGateway() {
     return () => clearInterval(timer)
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
+    setIsLoading(true)
 
-    // THE TRAP: If username is NOT empty => red strobe
-    if (username.trim() !== "") {
-      setTrapped(true)
-      return
-    }
+    const result = await login(password)
 
-    // Username MUST be empty for access
-    if (password === SUPER_PASSWORD) {
-      login("super-admin")
-      router.push("/admin")
-    } else if (password === SUB_PASSWORD) {
-      login("sub-admin")
-      router.push("/admin")
-    } else {
-      setError("ACCESS DENIED")
+    if (result.error) {
+      setError(result.error)
+      setIsLoading(false)
       setTimeout(() => setError(""), 3000)
+    } else {
+      router.push("/admin")
     }
   }
 
-  // RED STROBE ANTI-INTRUDER
-  if (trapped) {
+  // Show loading while checking auth
+  if (loading) {
     return (
-      <div className="red-strobe fixed inset-0 z-[999] flex items-center justify-center">
-        <div className="text-center">
-          <h1
-            className="select-none text-6xl font-black uppercase tracking-[0.2em] text-white md:text-[10rem]"
-            style={{
-              textShadow: "0 0 40px rgba(255,255,255,0.8), 0 0 80px rgba(255,0,0,0.5)",
-              lineHeight: 1,
-            }}
-          >
-            WHO ARE YOU?
-          </h1>
-          <p
-            className="mt-8 text-lg font-bold uppercase tracking-widest text-white/80"
-            style={{ textShadow: "0 0 20px rgba(255,255,255,0.4)" }}
-          >
-            Unauthorized Access Detected
-          </p>
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <span className="inline-block h-2 w-2 animate-ping rounded-full bg-white" />
-            <span className="text-xs uppercase tracking-wider text-white/60">
-              Connection Terminated
-            </span>
-          </div>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "hsl(var(--neon))" }} />
       </div>
     )
   }
@@ -112,8 +87,8 @@ export default function AdminGateway() {
         {/* Logo */}
         <div className="mb-10 flex flex-col items-center">
           <div
-            className="flex h-24 w-24 items-center justify-center rounded-2xl glass"
-            style={{ boxShadow: "var(--neon-glow-lg)" }}
+            className="flex h-24 w-24 items-center justify-center rounded-2xl backdrop-blur-md border border-white/10 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
+            style={{ background: "hsl(220 15% 8% / 0.85)" }}
           >
             <Shield className="h-12 w-12" style={{ color: "hsl(var(--neon))" }} />
           </div>
@@ -129,32 +104,16 @@ export default function AdminGateway() {
           </p>
         </div>
 
-        {/* Login Form */}
+        {/* Login Form - Password Only */}
         <form
           onSubmit={handleSubmit}
-          className="glass-strong space-y-6 rounded-2xl p-8"
-          style={{ boxShadow: "var(--neon-glow-sm)" }}
+          className="space-y-6 rounded-2xl p-8 backdrop-blur-md border border-white/10 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
+          style={{ background: "hsl(220 15% 8% / 0.85)" }}
         >
-          {/* Username */}
-          <div className="space-y-2">
-            <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Username
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full rounded-lg border border-border bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-neon focus:outline-none focus:ring-1"
-              style={{ "--tw-ring-color": "hsl(var(--neon))" } as React.CSSProperties}
-              placeholder="Enter username..."
-              autoComplete="off"
-            />
-          </div>
-
           {/* Password */}
           <div className="space-y-2">
             <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Password
+              Access Key
             </label>
             <div className="relative">
               <input
@@ -165,6 +124,7 @@ export default function AdminGateway() {
                 style={{ "--tw-ring-color": "hsl(var(--neon))" } as React.CSSProperties}
                 placeholder="Enter access key..."
                 autoComplete="off"
+                disabled={isLoading}
               />
               <button
                 type="button"
@@ -188,15 +148,20 @@ export default function AdminGateway() {
           {/* Submit */}
           <button
             type="submit"
-            className="neon-ring flex w-full items-center justify-center gap-2 rounded-lg py-3.5 text-sm font-bold uppercase tracking-wider transition-all"
+            disabled={isLoading}
+            className="neon-ring flex w-full items-center justify-center gap-2 rounded-lg py-3.5 text-sm font-bold uppercase tracking-wider transition-all disabled:opacity-50"
             style={{
               backgroundColor: "hsl(var(--neon))",
               color: "hsl(var(--background))",
               boxShadow: "var(--neon-glow-md)",
             }}
           >
-            <Lock className="h-4 w-4" />
-            AUTHENTICATE
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Lock className="h-4 w-4" />
+            )}
+            {isLoading ? "AUTHENTICATING..." : "AUTHENTICATE"}
           </button>
         </form>
 

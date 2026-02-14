@@ -7,19 +7,20 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar"
 import { Shield } from "lucide-react"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, loading } = useAuth()
   const router = useRouter()
-  const [checked, setChecked] = useState(false)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
+    if (loading) return // Wait until auth state is resolved
     if (!isAuthenticated) {
-      router.push("/admin-gateway")
+      router.replace("/admin-gateway")
     } else {
-      setChecked(true)
+      setReady(true)
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, loading, router])
 
-  if (!checked) {
+  if (loading || !ready) {
     return (
       <div
         className="flex h-screen items-center justify-center"
