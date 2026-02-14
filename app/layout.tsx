@@ -26,9 +26,7 @@ export default function RootLayout({
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrains.variable} font-sans antialiased bg-[#050505]`} suppressHydrationWarning>
         <Providers>
-          <main className="max-w-[1440px] mx-auto w-full min-h-screen bg-[#050505] text-white shadow-2xl border-x border-white/5">
-            {children}
-          </main>
+          {children}
         </Providers>
       </body>
     </html>

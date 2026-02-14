@@ -20,7 +20,7 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
 
   const handleSave = () => {
-    setConfig({ hue: settings.neonHue })
+    setConfig({ primaryHue: settings.neonHue })
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -66,7 +66,7 @@ export default function SettingsPage() {
               key={preset.hue}
               onClick={() => {
                 setSettings((prev) => ({ ...prev, neonHue: preset.hue }))
-                setConfig({ hue: preset.hue })
+                setConfig({ primaryHue: preset.hue })
               }}
               className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-all ${
                 settings.neonHue === preset.hue
@@ -96,7 +96,7 @@ export default function SettingsPage() {
             onChange={(e) => {
               const hue = Number(e.target.value)
               setSettings((prev) => ({ ...prev, neonHue: hue }))
-              setConfig({ hue })
+              setConfig({ primaryHue: hue })
             }}
             className="w-full accent-neon"
           />

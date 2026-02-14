@@ -133,7 +133,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
   const bottomAd = adSlots.find((a) => a.position === "bottom" && a.active)
 
   return (
-    <div className="min-h-screen bg-background">
+    <main className="mx-auto min-h-screen w-full max-w-[1440px] border-x border-white/5 bg-[#050505] text-white shadow-2xl">
       <Header />
       <SocialProofNotifications />
 
@@ -260,6 +260,6 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
       </article>
 
       <Footer />
-    </div>
+    </main>
   )
 }

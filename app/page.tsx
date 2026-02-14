@@ -47,7 +47,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <main className="mx-auto min-h-screen w-full max-w-[1440px] border-x border-white/5 bg-[#050505] text-white shadow-2xl">
       <Header />
 
       {/* Social Proof Notifications */}
@@ -61,6 +61,6 @@ export default function HomePage() {
       </div>
 
       <Footer />
-    </div>
+    </main>
   )
 }
