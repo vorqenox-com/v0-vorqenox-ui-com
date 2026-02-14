@@ -7,24 +7,47 @@ import { useStore } from "@/lib/store"
 import {
   LayoutDashboard,
   FileText,
-  Palette,
   Activity,
-  Settings,
+  Palette,
+  ShieldCheck,
   LogOut,
-  Shield,
-  Plug,
-  MessageSquare,
+  Zap,
+  Sparkles,
+  ChevronLeft,
 } from "lucide-react"
+import { useState } from "react"
 
 const NAV_ITEMS = [
-  { href: "/admin", label: "نظرة عامة", icon: LayoutDashboard, roles: ["super-admin", "sub-admin"] },
-  { href: "/admin/articles", label: "المقالات", icon: FileText, roles: ["super-admin", "sub-admin"] },
-  { href: "/admin/theme", label: "محرك السمات", icon: Palette, roles: ["super-admin"] },
-  { href: "/admin/ui-master", label: "مدير الواجهة", icon: LayoutDashboard, roles: ["super-admin"] },
-  { href: "/admin/traffic", label: "غسل الزيارات", icon: Activity, roles: ["super-admin", "sub-admin"] },
-  { href: "/admin/expansion", label: "مركز التوسع", icon: Plug, roles: ["super-admin"] },
-  { href: "/admin/social-proof", label: "الإثبات الاجتماعي", icon: MessageSquare, roles: ["super-admin"] },
-  { href: "/admin/settings", label: "الإعدادات", icon: Settings, roles: ["super-admin"] },
+  {
+    href: "/admin",
+    label: "Overview",
+    subtitle: "Stats & Summary",
+    icon: LayoutDashboard,
+  },
+  {
+    href: "/admin/articles",
+    label: "Article Manager",
+    subtitle: "Post / Edit / Delete",
+    icon: FileText,
+  },
+  {
+    href: "/admin/traffic",
+    label: "Traffic & Ads Hub",
+    subtitle: "Washing & Ad Units",
+    icon: Activity,
+  },
+  {
+    href: "/admin/theme",
+    label: "UI & Neon Master",
+    subtitle: "Identity & Colors",
+    icon: Palette,
+  },
+  {
+    href: "/admin/security",
+    label: "Security",
+    subtitle: "Access & Passwords",
+    icon: ShieldCheck,
+  },
 ]
 
 export function AdminSidebar() {
@@ -32,70 +55,155 @@ export function AdminSidebar() {
   const router = useRouter()
   const { role, logout } = useAuth()
   const { settings } = useStore()
+  const [collapsed, setCollapsed] = useState(false)
 
   return (
-    <aside className="glass-strong flex w-64 shrink-0 flex-col border-l border-border">
-      {/* Logo */}
-      <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-        <svg viewBox="0 0 32 32" className="h-7 w-7 shrink-0" fill="none">
-          <rect x="2" y="2" width="28" height="28" rx="6" stroke="hsl(var(--neon))" strokeWidth="2" opacity="0.8" />
-          <path d="M8 12 L16 24 L24 12" stroke="hsl(var(--neon2))" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx="16" cy="10" r="2" fill="hsl(var(--neon))" />
-        </svg>
-        <div>
-          <span className="neon-text block font-mono text-sm font-bold tracking-wider">{settings.name}</span>
-          <span className="text-[10px] text-muted-foreground">لوحة التحكم</span>
-        </div>
-      </div>
-
-      {/* Role Badge */}
-      <div className="border-b border-border px-5 py-3">
-        <span
-          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+    <aside
+      className={`flex shrink-0 flex-col border-r transition-all duration-300 ${
+        collapsed ? "w-[72px]" : "w-72"
+      }`}
+      style={{
+        background: "rgba(255, 255, 255, 0.05)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        borderColor: "rgba(255, 255, 255, 0.1)",
+      }}
+    >
+      {/* Logo header */}
+      <div
+        className="flex items-center gap-3 px-5 py-5"
+        style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.1)" }}
+      >
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl"
           style={{
-            backgroundColor: "hsl(var(--neon) / 0.1)",
-            color: "hsl(var(--neon))",
+            background: "rgba(34, 211, 238, 0.1)",
+            boxShadow: "0 0 15px rgba(34, 211, 238, 0.2)",
           }}
         >
-          <Shield className="h-3 w-3" />
-          {role === "super-admin" ? "مدير رئيسي" : "مدير فرعي"}
-        </span>
+          <Zap className="h-5 w-5 text-cyan-400" />
+        </div>
+        {!collapsed && (
+          <div className="flex flex-col overflow-hidden">
+            <span
+              className="truncate text-sm font-bold tracking-wider text-cyan-400"
+              style={{ textShadow: "0 0 10px rgba(34, 211, 238, 0.4)" }}
+            >
+              {settings.name}
+            </span>
+            <span className="text-[10px] text-gray-500">Nerve Center</span>
+          </div>
+        )}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-white/5 hover:text-gray-300"
+        >
+          <ChevronLeft
+            className={`h-4 w-4 transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`}
+          />
+        </button>
       </div>
 
+      {/* Role badge */}
+      {!collapsed && (
+        <div className="px-5 py-3" style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.05)" }}>
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium"
+            style={{
+              background: "rgba(34, 211, 238, 0.08)",
+              color: "rgb(34, 211, 238)",
+              border: "1px solid rgba(34, 211, 238, 0.15)",
+            }}
+          >
+            <Sparkles className="h-3 w-3" />
+            {role === "super-admin" ? "Super Admin" : "Sub Admin"}
+          </span>
+        </div>
+      )}
+
       {/* Navigation */}
-      <nav className="flex flex-1 flex-col gap-1 p-3 overflow-y-auto">
-        {NAV_ITEMS.filter((item) => role && item.roles.includes(role)).map((item) => {
-          const isActive = pathname === item.href
+      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+        {NAV_ITEMS.map((item) => {
+          const isActive =
+            item.href === "/admin"
+              ? pathname === "/admin"
+              : pathname.startsWith(item.href)
           return (
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm transition-all"
+              title={collapsed ? item.label : undefined}
+              className={`group relative flex items-center gap-3 rounded-2xl px-3 py-3 text-sm transition-all duration-200 ${
+                collapsed ? "justify-center" : ""
+              }`}
               style={{
-                backgroundColor: isActive ? "hsl(var(--neon) / 0.1)" : "transparent",
-                color: isActive ? "hsl(var(--neon))" : "hsl(var(--muted-foreground))",
-                boxShadow: isActive ? "var(--neon-glow-sm)" : "none",
+                background: isActive ? "rgba(34, 211, 238, 0.08)" : "transparent",
+                color: isActive ? "rgb(34, 211, 238)" : "rgb(156, 163, 175)",
               }}
             >
-              <item.icon className="h-4 w-4" />
-              {item.label}
+              {/* Active indicator */}
+              {isActive && (
+                <span
+                  className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full"
+                  style={{ background: "rgb(34, 211, 238)" }}
+                />
+              )}
+
+              {/* Icon container with glow */}
+              <span
+                className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-200"
+                style={{
+                  background: isActive
+                    ? "rgba(34, 211, 238, 0.12)"
+                    : "transparent",
+                  boxShadow: isActive
+                    ? "0 0 15px rgba(34, 211, 238, 0.2)"
+                    : "none",
+                }}
+              >
+                <item.icon className="h-[18px] w-[18px]" />
+              </span>
+
+              {!collapsed && (
+                <div className="min-w-0 flex-1">
+                  <span className="block truncate font-medium leading-tight">
+                    {item.label}
+                  </span>
+                  <span
+                    className="block truncate text-[11px] leading-tight"
+                    style={{ color: isActive ? "rgba(34, 211, 238, 0.6)" : "rgb(107, 114, 128)" }}
+                  >
+                    {item.subtitle}
+                  </span>
+                </div>
+              )}
+
+              {/* Hover glow */}
+              {!isActive && (
+                <span
+                  className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                  style={{ background: "rgba(255, 255, 255, 0.02)" }}
+                />
+              )}
             </Link>
           )
         })}
       </nav>
 
       {/* Logout */}
-      <div className="border-t border-border p-3">
+      <div className="p-3" style={{ borderTop: "1px solid rgba(255, 255, 255, 0.05)" }}>
         <button
           onClick={() => {
             logout()
             router.push("/")
           }}
-          className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm transition-colors"
-          style={{ color: "hsl(var(--destructive))" }}
+          title={collapsed ? "Logout" : undefined}
+          className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm text-red-400 transition-all duration-200 hover:bg-red-500/10 ${
+            collapsed ? "justify-center" : ""
+          }`}
         >
-          <LogOut className="h-4 w-4" />
-          تسجيل الخروج
+          <LogOut className="h-[18px] w-[18px] shrink-0" />
+          {!collapsed && <span className="font-medium">Logout</span>}
         </button>
       </div>
     </aside>

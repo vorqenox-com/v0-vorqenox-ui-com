@@ -3,9 +3,17 @@
 import { useState, useMemo } from "react"
 import { useStore } from "@/lib/store"
 import Link from "next/link"
-import { LayoutGrid, ChevronLeft, ChevronRight } from "lucide-react"
+import {
+  LayoutGrid,
+  ChevronLeft,
+  ChevronRight,
+  Tag,
+  Monitor,
+  HardDrive,
+  Shield,
+} from "lucide-react"
 
-const ARTICLES_PER_PAGE = 5
+const ARTICLES_PER_PAGE = 6
 
 export function ArticlesGrid() {
   const { articles } = useStore()
@@ -39,81 +47,105 @@ export function ArticlesGrid() {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-4">
-      <div className="mb-5 flex items-center gap-2">
-        <LayoutGrid className="h-5 w-5" style={{ color: "hsl(var(--neon))" }} />
-        <h2 className="text-lg font-semibold text-foreground">Articles Hub</h2>
+    <section>
+      <div className="mb-6 flex items-center gap-2.5">
+        <LayoutGrid className="h-5 w-5 text-cyan-400" />
+        <h2 className="text-lg font-semibold text-white">Articles Hub</h2>
       </div>
 
-      {/* Tabs: Latest, All, Categories */}
+      {/* Tab Filters */}
       <div className="mb-6 flex flex-wrap gap-2">
-        {["latest", "all", ...categories].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => handleTabChange(tab)}
-            className="rounded-lg px-4 py-2 text-xs font-medium transition-all"
-            style={{
-              backgroundColor: activeTab === tab ? "hsl(var(--neon) / 0.15)" : "hsl(var(--secondary))",
-              color: activeTab === tab ? "hsl(var(--neon))" : "hsl(var(--muted-foreground))",
-              boxShadow: activeTab === tab ? "var(--neon-glow-sm)" : "none",
-              border: activeTab === tab ? "1px solid hsl(var(--neon) / 0.3)" : "1px solid transparent",
-            }}
-          >
-            {tab === "latest" ? "Latest" : tab === "all" ? "All" : tab}
-          </button>
-        ))}
+        {["latest", "all", ...categories].map((tab) => {
+          const isActive = activeTab === tab
+          return (
+            <button
+              key={tab}
+              onClick={() => handleTabChange(tab)}
+              className="rounded-xl px-4 py-2 text-xs font-medium transition-all"
+              style={{
+                backgroundColor: isActive ? "rgba(34, 211, 238, 0.1)" : "rgba(255, 255, 255, 0.03)",
+                color: isActive ? "rgb(34, 211, 238)" : "rgb(156, 163, 175)",
+                boxShadow: isActive ? "0 0 10px rgba(34, 211, 238, 0.15)" : "none",
+                border: isActive
+                  ? "1px solid rgba(34, 211, 238, 0.2)"
+                  : "1px solid rgba(255, 255, 255, 0.06)",
+              }}
+            >
+              {tab === "latest" ? "Latest" : tab === "all" ? "All" : tab}
+            </button>
+          )
+        })}
       </div>
 
       {/* Articles Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {paginatedArticles.map((article) => (
           <Link key={article.id} href={`/article/${article.id}`} className="group">
-            <div
-              className="glass h-full overflow-hidden rounded-xl transition-all duration-300"
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLDivElement).style.boxShadow = "var(--neon-glow-md)"
-                ;(e.currentTarget as HTMLDivElement).style.borderColor = "hsl(var(--neon) / 0.3)"
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLDivElement).style.boxShadow = "none"
-                ;(e.currentTarget as HTMLDivElement).style.borderColor = ""
-              }}
-            >
-              {/* Image or neon gradient */}
+            <div className="h-full overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-md transition-all duration-300 hover:border-cyan-500/20 hover:shadow-[0_0_20px_rgba(34,211,238,0.1)]">
+              {/* Image or gradient */}
               {article.image ? (
                 <img
                   src={article.image}
                   alt={article.title}
-                  className="h-36 w-full object-cover"
+                  className="h-40 w-full object-cover"
                   crossOrigin="anonymous"
                 />
               ) : (
                 <div
-                  className="flex h-36 items-center justify-center"
+                  className="flex h-40 items-center justify-center"
                   style={{
-                    background: `linear-gradient(135deg, hsl(var(--neon) / 0.2), hsl(var(--neon2) / 0.05))`,
+                    background:
+                      "linear-gradient(135deg, rgba(34, 211, 238, 0.08) 0%, rgba(255, 215, 0, 0.03) 100%)",
                   }}
                 >
-                  <span className="neon-text px-3 text-center font-mono text-xs font-bold">
+                  <span className="px-4 text-center font-mono text-xs font-bold text-cyan-400/70">
                     {article.title}
                   </span>
                 </div>
               )}
 
               <div className="p-4">
-                <span
-                  className="mb-1 block text-xs font-medium uppercase tracking-wider"
-                  style={{ color: "hsl(var(--neon))" }}
-                >
-                  {article.category}
-                </span>
-                <h3 className="text-sm font-semibold leading-snug text-foreground">
+                {/* Category + Date Row */}
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-cyan-400">
+                    {article.category}
+                  </span>
+                  <span className="text-[10px] text-gray-600">{article.createdAt}</span>
+                </div>
+
+                {/* Title */}
+                <h3 className="text-sm font-semibold leading-snug text-gray-200">
                   {article.title}
                 </h3>
-                <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+
+                {/* Excerpt */}
+                <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-gray-500">
                   {article.excerpt}
                 </p>
-                <span className="mt-2 block text-xs text-muted-foreground">{article.createdAt}</span>
+
+                {/* 4-Box Info Grid */}
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <InfoBox
+                    icon={<Tag className="h-3.5 w-3.5 text-cyan-400" />}
+                    label="Version"
+                    value="v2.1"
+                  />
+                  <InfoBox
+                    icon={<Monitor className="h-3.5 w-3.5 text-cyan-400" />}
+                    label="Platform"
+                    value="Multi"
+                  />
+                  <InfoBox
+                    icon={<HardDrive className="h-3.5 w-3.5 text-cyan-400" />}
+                    label="Size"
+                    value="4.2 MB"
+                  />
+                  <InfoBox
+                    icon={<Shield className="h-3.5 w-3.5 text-cyan-400" />}
+                    label="License"
+                    value="Premium"
+                  />
+                </div>
               </div>
             </div>
           </Link>
@@ -122,40 +154,66 @@ export function ArticlesGrid() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-center gap-2">
+        <div className="mt-8 flex items-center justify-center gap-2">
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:bg-accent disabled:opacity-30"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] transition-all hover:border-cyan-500/20 hover:bg-white/[0.06] disabled:opacity-30"
           >
-            <ChevronLeft className="h-4 w-4 text-foreground" />
+            <ChevronLeft className="h-4 w-4 text-gray-400" />
           </button>
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPage(p)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-xs font-medium transition-all"
-              style={{
-                backgroundColor: page === p ? "hsl(var(--neon) / 0.15)" : "hsl(var(--card))",
-                color: page === p ? "hsl(var(--neon))" : "hsl(var(--muted-foreground))",
-                border: page === p ? "1px solid hsl(var(--neon) / 0.3)" : "1px solid hsl(var(--border))",
-                boxShadow: page === p ? "var(--neon-glow-sm)" : "none",
-              }}
-            >
-              {p}
-            </button>
-          ))}
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+            const isActive = page === p
+            return (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                className="flex h-9 w-9 items-center justify-center rounded-xl text-xs font-medium transition-all"
+                style={{
+                  backgroundColor: isActive ? "rgba(34, 211, 238, 0.1)" : "rgba(255, 255, 255, 0.03)",
+                  color: isActive ? "rgb(34, 211, 238)" : "rgb(156, 163, 175)",
+                  border: isActive
+                    ? "1px solid rgba(34, 211, 238, 0.2)"
+                    : "1px solid rgba(255, 255, 255, 0.08)",
+                  boxShadow: isActive ? "0 0 8px rgba(34, 211, 238, 0.12)" : "none",
+                }}
+              >
+                {p}
+              </button>
+            )
+          })}
 
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:bg-accent disabled:opacity-30"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] transition-all hover:border-cyan-500/20 hover:bg-white/[0.06] disabled:opacity-30"
           >
-            <ChevronRight className="h-4 w-4 text-foreground" />
+            <ChevronRight className="h-4 w-4 text-gray-400" />
           </button>
         </div>
       )}
     </section>
+  )
+}
+
+/* 4-Box Info Grid Cell */
+function InfoBox({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: string
+}) {
+  return (
+    <div className="flex items-center gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] px-3 py-2">
+      {icon}
+      <div className="flex flex-col">
+        <span className="text-[9px] uppercase tracking-wider text-gray-600">{label}</span>
+        <span className="text-[11px] font-medium text-gray-300">{value}</span>
+      </div>
+    </div>
   )
 }

@@ -1,14 +1,22 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { useStore } from "@/lib/store"
 import { Bell } from "lucide-react"
 
 export function SocialProofNotifications() {
   const { socialProofs } = useStore()
-  const activeProofs = socialProofs.filter((p) => p.active)
+  const activeProofs = useMemo(
+    () => socialProofs.filter((p) => p.active),
+    [socialProofs]
+  )
   const [current, setCurrent] = useState<string | null>(null)
   const [exiting, setExiting] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const showNext = useCallback(() => {
     if (activeProofs.length === 0) return
@@ -24,7 +32,7 @@ export function SocialProofNotifications() {
   }, [activeProofs])
 
   useEffect(() => {
-    if (activeProofs.length === 0) return
+    if (!mounted || activeProofs.length === 0) return
     // Show first notification after 5 seconds, then every 15 seconds
     const initialTimer = setTimeout(showNext, 5000)
     const interval = setInterval(showNext, 15000)
@@ -32,9 +40,9 @@ export function SocialProofNotifications() {
       clearTimeout(initialTimer)
       clearInterval(interval)
     }
-  }, [showNext, activeProofs.length])
+  }, [showNext, activeProofs.length, mounted])
 
-  if (!current) return null
+  if (!mounted || !current) return null
 
   return (
     <div className="fixed bottom-6 left-6 z-50">
@@ -50,9 +58,9 @@ export function SocialProofNotifications() {
         >
           <Bell className="h-4 w-4" style={{ color: "hsl(var(--neon))" }} />
         </div>
-        <div>
+        <div suppressHydrationWarning>
           <p className="text-sm text-foreground">{current}</p>
-          <p className="mt-1 text-xs text-muted-foreground">Just now</p>
+          <p className="mt-1 text-xs text-muted-foreground" suppressHydrationWarning>Just now</p>
         </div>
       </div>
     </div>

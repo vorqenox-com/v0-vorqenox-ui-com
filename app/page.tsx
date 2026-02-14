@@ -47,18 +47,18 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <Header />
 
       {/* Social Proof Notifications */}
       <SocialProofNotifications />
 
       {/* Dynamic Section Rendering */}
-      <main className="flex flex-col gap-10 pb-16 pt-8">
+      <div className="flex flex-col gap-12 px-4 pb-16 pt-8 md:px-8">
         {sectionOrder
           .filter((s) => s.visible)
           .map((section) => renderSection(section.id))}
-      </main>
+      </div>
 
       <Footer />
     </div>

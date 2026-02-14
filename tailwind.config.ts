@@ -42,6 +42,8 @@ const config: Config = {
           foreground: 'hsl(var(--destructive-foreground))',
         },
         neon: 'hsl(var(--neon))',
+        'neon-cyan': 'rgba(34, 211, 238, 1)',
+        'neon-gold': 'rgba(255, 215, 0, 1)',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -81,6 +83,8 @@ const config: Config = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'neon-breathe': 'neon-breathe 3s ease-in-out infinite',
+        'neon-breathe-gold': 'neon-breathe-gold 3s ease-in-out infinite',
       },
     },
   },

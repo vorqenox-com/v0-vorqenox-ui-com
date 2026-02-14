@@ -52,13 +52,13 @@ function CounterSection({ article }: { article: { counterMode: string; counterFi
         {article.counterMode === "fixed" ? "Time Remaining" : "Active Users Right Now"}
       </p>
 
-      <div className="mb-4">
+      <div className="mb-4" suppressHydrationWarning>
         {article.counterMode === "fixed" ? (
-          <span className="countdown-glow font-mono text-5xl font-black" style={{ color: "hsl(var(--neon))" }}>
+          <span className="countdown-glow font-mono text-5xl font-black" style={{ color: "hsl(var(--neon))" }} suppressHydrationWarning>
             {count ?? 0}s
           </span>
         ) : (
-          <span className="countdown-glow font-mono text-5xl font-black" style={{ color: "hsl(var(--neon))" }}>
+          <span className="countdown-glow font-mono text-5xl font-black" style={{ color: "hsl(var(--neon))" }} suppressHydrationWarning>
             {count?.toLocaleString() ?? "---"}
           </span>
         )}
