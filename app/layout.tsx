@@ -7,8 +7,8 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains' })
 
 export const metadata: Metadata = {
-  title: 'Vorqenox - Ultimate Platform',
-  description: 'Vorqenox - The Ultimate Psychological Conversion Platform',
+  title: 'Vorqenox V2 - Professional Edition',
+  description: 'Vorqenox V2 - The Ultimate Professional Conversion Platform',
 }
 
 export const viewport: Viewport = {
@@ -24,8 +24,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} ${jetbrains.variable} font-sans antialiased`}>
-        <Providers>{children}</Providers>
+      <body className={`${inter.variable} ${jetbrains.variable} font-sans antialiased bg-[#050505] min-h-screen`}>
+        <Providers>
+          <div className="mx-auto max-w-[1440px] px-4 md:px-8">
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   )
