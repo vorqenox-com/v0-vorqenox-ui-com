@@ -7,6 +7,16 @@ export interface SpecRow {
   value: string
 }
 
+export type LeadGenMode = "none" | "quiet" | "aggressive" | "email-to-unlock"
+export type TrafficWashMode = "off" | "type1" | "type2"
+export type Visibility = "titan" | "premium" | "grid"
+
+export interface InfoBox {
+  label: string
+  value: string
+  icon: string
+}
+
 export interface Article {
   id: string
   title: string
@@ -20,12 +30,17 @@ export interface Article {
   showAds: boolean
   showLandingPage: boolean
   autoRefresh: boolean
-  counterMode: "fixed" | "random"
+  counterMode: "fixed" | "random" | "hidden"
   counterFixed: number
   counterMin: number
   counterMax: number
   specs: SpecRow[]
   createdAt: string
+  // V2 Advanced Fields
+  leadGenMode: LeadGenMode
+  trafficWashMode: TrafficWashMode
+  visibility: Visibility
+  infoBoxes: InfoBox[]
 }
 
 export interface FriendlySite {
@@ -122,6 +137,17 @@ const MOCK_ARTICLES: Article[] = [
       { key: "Battery", value: "72h Active Use" },
     ],
     createdAt: "2026-02-10",
+    leadGenMode: "quiet",
+    trafficWashMode: "off",
+    visibility: "titan",
+    infoBoxes: [
+      { label: "Version", value: "3.0.1", icon: "tag" },
+      { label: "Platform", value: "Cross-Platform", icon: "monitor" },
+      { label: "Size", value: "24 MB", icon: "hard-drive" },
+      { label: "License", value: "Premium", icon: "shield" },
+      { label: "Release", value: "Feb 2026", icon: "calendar" },
+      { label: "Rating", value: "4.9/5", icon: "star" },
+    ],
   },
   {
     id: "2",
@@ -145,6 +171,17 @@ const MOCK_ARTICLES: Article[] = [
       { key: "Error Rate", value: "0.001%" },
     ],
     createdAt: "2026-02-09",
+    leadGenMode: "none",
+    trafficWashMode: "off",
+    visibility: "titan",
+    infoBoxes: [
+      { label: "Version", value: "2.1.0", icon: "tag" },
+      { label: "Platform", value: "Linux / macOS", icon: "monitor" },
+      { label: "Size", value: "118 MB", icon: "hard-drive" },
+      { label: "License", value: "Open Source", icon: "shield" },
+      { label: "Release", value: "Jan 2026", icon: "calendar" },
+      { label: "Rating", value: "4.7/5", icon: "star" },
+    ],
   },
   {
     id: "3",
@@ -165,6 +202,17 @@ const MOCK_ARTICLES: Article[] = [
     counterMax: 900,
     specs: [],
     createdAt: "2026-02-08",
+    leadGenMode: "aggressive",
+    trafficWashMode: "type1",
+    visibility: "premium",
+    infoBoxes: [
+      { label: "Version", value: "5.2.0", icon: "tag" },
+      { label: "Platform", value: "All Platforms", icon: "monitor" },
+      { label: "Size", value: "8 MB", icon: "hard-drive" },
+      { label: "License", value: "Enterprise", icon: "shield" },
+      { label: "Release", value: "Feb 2026", icon: "calendar" },
+      { label: "Rating", value: "4.8/5", icon: "star" },
+    ],
   },
   {
     id: "4",
@@ -188,6 +236,17 @@ const MOCK_ARTICLES: Article[] = [
       { key: "Languages", value: "42+ Supported" },
     ],
     createdAt: "2026-02-07",
+    leadGenMode: "email-to-unlock",
+    trafficWashMode: "type2",
+    visibility: "premium",
+    infoBoxes: [
+      { label: "Version", value: "6.0.0", icon: "tag" },
+      { label: "Platform", value: "Web / API", icon: "monitor" },
+      { label: "Size", value: "Cloud", icon: "hard-drive" },
+      { label: "License", value: "Freemium", icon: "shield" },
+      { label: "Release", value: "Feb 2026", icon: "calendar" },
+      { label: "Rating", value: "4.9/5", icon: "star" },
+    ],
   },
   {
     id: "5",
@@ -208,6 +267,17 @@ const MOCK_ARTICLES: Article[] = [
     counterMax: 1500,
     specs: [],
     createdAt: "2026-02-06",
+    leadGenMode: "quiet",
+    trafficWashMode: "off",
+    visibility: "grid",
+    infoBoxes: [
+      { label: "Version", value: "1.0.0", icon: "tag" },
+      { label: "Platform", value: "Web3", icon: "monitor" },
+      { label: "Size", value: "12 MB", icon: "hard-drive" },
+      { label: "License", value: "Open Source", icon: "shield" },
+      { label: "Release", value: "Jan 2026", icon: "calendar" },
+      { label: "Rating", value: "4.5/5", icon: "star" },
+    ],
   },
   {
     id: "6",
@@ -228,6 +298,17 @@ const MOCK_ARTICLES: Article[] = [
     counterMax: 1500,
     specs: [],
     createdAt: "2026-02-05",
+    leadGenMode: "none",
+    trafficWashMode: "off",
+    visibility: "grid",
+    infoBoxes: [
+      { label: "Version", value: "4.1.2", icon: "tag" },
+      { label: "Platform", value: "IoT / Edge", icon: "monitor" },
+      { label: "Size", value: "3 MB", icon: "hard-drive" },
+      { label: "License", value: "MIT", icon: "shield" },
+      { label: "Release", value: "Jan 2026", icon: "calendar" },
+      { label: "Rating", value: "4.6/5", icon: "star" },
+    ],
   },
   {
     id: "7",
@@ -248,6 +329,17 @@ const MOCK_ARTICLES: Article[] = [
     counterMax: 1500,
     specs: [],
     createdAt: "2026-02-04",
+    leadGenMode: "none",
+    trafficWashMode: "off",
+    visibility: "grid",
+    infoBoxes: [
+      { label: "Version", value: "2.0.0", icon: "tag" },
+      { label: "Platform", value: "VR / AR", icon: "monitor" },
+      { label: "Size", value: "1.2 GB", icon: "hard-drive" },
+      { label: "License", value: "Commercial", icon: "shield" },
+      { label: "Release", value: "Dec 2025", icon: "calendar" },
+      { label: "Rating", value: "4.3/5", icon: "star" },
+    ],
   },
   {
     id: "8",
@@ -271,6 +363,17 @@ const MOCK_ARTICLES: Article[] = [
       { key: "Swarm Size", value: "Up to 256 Units" },
     ],
     createdAt: "2026-02-03",
+    leadGenMode: "quiet",
+    trafficWashMode: "type1",
+    visibility: "grid",
+    infoBoxes: [
+      { label: "Version", value: "1.5.0", icon: "tag" },
+      { label: "Platform", value: "Drone OS", icon: "monitor" },
+      { label: "Size", value: "45 MB", icon: "hard-drive" },
+      { label: "License", value: "Government", icon: "shield" },
+      { label: "Release", value: "Feb 2026", icon: "calendar" },
+      { label: "Rating", value: "4.8/5", icon: "star" },
+    ],
   },
 ]
 
