@@ -63,7 +63,7 @@ export default function AdminOverview() {
             <div className="flex items-center justify-between">
               <stat.icon className={`h-5 w-5 ${stat.color}`} />
             </div>
-            <p className="mt-3 text-2xl font-bold text-foreground">{stat.value}</p>
+            <p className="mt-3 text-2xl font-bold text-foreground" suppressHydrationWarning>{stat.value}</p>
             <p className="mt-1 text-xs text-muted-foreground">{stat.label}</p>
           </div>
         ))}

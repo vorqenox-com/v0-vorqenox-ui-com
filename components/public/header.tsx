@@ -36,8 +36,7 @@ export function Header() {
     <>
       {/* Floating Glass Navbar */}
       <header className="sticky top-0 z-40">
-        <div className="mx-auto max-w-[1440px]">
-          <nav className="flex items-center justify-between border-b border-white/5 bg-black/40 px-5 py-3 backdrop-blur-xl">
+        <nav className="flex items-center justify-between border-b border-white/5 bg-black/40 px-5 py-3 backdrop-blur-xl">
             {/* Left: Glowing Logo */}
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative flex h-9 w-9 items-center justify-center">
@@ -94,7 +93,6 @@ export function Header() {
               </button>
             </div>
           </nav>
-        </div>
 
         {/* Expandable Search Bar */}
         {searchOpen && (

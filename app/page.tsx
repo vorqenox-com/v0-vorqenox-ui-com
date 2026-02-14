@@ -54,11 +54,11 @@ export default function HomePage() {
       <SocialProofNotifications />
 
       {/* Dynamic Section Rendering */}
-      <main className="flex flex-col gap-12 pb-16 pt-8">
+      <div className="flex flex-col gap-12 px-4 pb-16 pt-8 md:px-8">
         {sectionOrder
           .filter((s) => s.visible)
           .map((section) => renderSection(section.id))}
-      </main>
+      </div>
 
       <Footer />
     </div>

@@ -24,11 +24,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} ${jetbrains.variable} font-sans antialiased bg-[#050505] min-h-screen`} suppressHydrationWarning>
+      <body className={`${inter.variable} ${jetbrains.variable} font-sans antialiased bg-[#050505]`} suppressHydrationWarning>
         <Providers>
-          <div className="mx-auto max-w-[1440px] px-4 md:px-8">
+          <main className="max-w-[1440px] mx-auto w-full min-h-screen bg-[#050505] text-white shadow-2xl border-x border-white/5">
             {children}
-          </div>
+          </main>
         </Providers>
       </body>
     </html>
