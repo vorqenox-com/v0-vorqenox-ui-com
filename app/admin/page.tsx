@@ -6,7 +6,12 @@ import { useEffect, useState } from "react"
 
 export default function AdminOverview() {
   const { articles, visitors } = useStore()
-  const [liveVisitors, setLiveVisitors] = useState(visitors)
+  const [liveVisitors, setLiveVisitors] = useState(0)
+
+  // Sync once visitors are available from store
+  useEffect(() => {
+    if (visitors > 0) setLiveVisitors(visitors)
+  }, [visitors])
 
   // Simulate live visitor fluctuation
   useEffect(() => {

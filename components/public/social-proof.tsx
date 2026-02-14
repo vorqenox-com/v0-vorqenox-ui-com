@@ -50,9 +50,9 @@ export function SocialProofNotifications() {
         >
           <Bell className="h-4 w-4" style={{ color: "hsl(var(--neon))" }} />
         </div>
-        <div>
+        <div suppressHydrationWarning>
           <p className="text-sm text-foreground">{current}</p>
-          <p className="mt-1 text-xs text-muted-foreground">Just now</p>
+          <p className="mt-1 text-xs text-muted-foreground" suppressHydrationWarning>Just now</p>
         </div>
       </div>
     </div>

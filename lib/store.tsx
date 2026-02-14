@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
 export interface SpecRow {
   key: string
@@ -333,7 +333,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   })
   const [sectionOrder, setSectionOrder] = useState<SectionOrder[]>(DEFAULT_SECTIONS)
   const [silentRefresh, setSilentRefresh] = useState(false)
-  const [visitors] = useState(Math.floor(Math.random() * 5000) + 1200)
+  const [visitors, setVisitors] = useState(0)
+
+  // Defer random visitor count to client-only to prevent hydration mismatch
+  useEffect(() => {
+    setVisitors(Math.floor(Math.random() * 5000) + 1200)
+  }, [])
   const [socialProofs, setSocialProofs] = useState<SocialProof[]>(MOCK_SOCIAL_PROOFS)
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>(MOCK_SOCIAL_LINKS)
 
