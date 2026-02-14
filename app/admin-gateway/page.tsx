@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
-import { Lock, Eye, EyeOff, Shield, Zap, Loader2 } from "lucide-react"
+import { Lock, Eye, EyeOff, Shield, Zap, Loader2, Mail } from "lucide-react"
 
 export default function AdminGateway() {
+  const [email, setEmail] = useState("vorqenox@gmail.com")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
@@ -14,10 +15,10 @@ export default function AdminGateway() {
   const router = useRouter()
   const { login, isAuthenticated, loading } = useAuth()
 
-  // If already authenticated, redirect to admin
+  // If already authenticated, redirect to admin dashboard
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      router.push("/admin")
+      router.push("/admin/dashboard")
     }
   }, [isAuthenticated, loading, router])
 
@@ -35,14 +36,14 @@ export default function AdminGateway() {
     setError("")
     setIsLoading(true)
 
-    const result = await login(password)
+    const result = await login(email, password)
 
     if (result.error) {
       setError(result.error)
       setIsLoading(false)
       setTimeout(() => setError(""), 3000)
     } else {
-      router.push("/admin")
+      router.push("/admin/dashboard")
     }
   }
 
@@ -104,26 +105,45 @@ export default function AdminGateway() {
           </p>
         </div>
 
-        {/* Login Form - Password Only */}
+        {/* Login Form */}
         <form
           onSubmit={handleSubmit}
-          className="space-y-6 rounded-2xl p-8 backdrop-blur-md border border-white/10 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
+          className="space-y-5 rounded-2xl p-8 backdrop-blur-md border border-white/10 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
           style={{ background: "hsl(220 15% 8% / 0.85)" }}
         >
-          {/* Password */}
+          {/* Email Field */}
+          <div className="space-y-2">
+            <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              Email
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-lg border border-border bg-secondary pl-10 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-[hsl(var(--neon))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--neon))]"
+                placeholder="admin@example.com"
+                autoComplete="email"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
+          {/* Access Key / Password Field */}
           <div className="space-y-2">
             <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Access Key
             </label>
             <div className="relative">
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-border bg-secondary px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:border-neon focus:outline-none focus:ring-1"
-                style={{ "--tw-ring-color": "hsl(var(--neon))" } as React.CSSProperties}
+                className="w-full rounded-lg border border-border bg-secondary pl-10 pr-12 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-[hsl(var(--neon))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--neon))]"
                 placeholder="Enter access key..."
-                autoComplete="off"
+                autoComplete="current-password"
                 disabled={isLoading}
               />
               <button
@@ -148,7 +168,7 @@ export default function AdminGateway() {
           {/* Submit */}
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || !email || !password}
             className="neon-ring flex w-full items-center justify-center gap-2 rounded-lg py-3.5 text-sm font-bold uppercase tracking-wider transition-all disabled:opacity-50"
             style={{
               backgroundColor: "hsl(var(--neon))",
