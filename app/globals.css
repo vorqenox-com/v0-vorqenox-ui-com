@@ -293,6 +293,16 @@
   animation: shimmer 3s linear infinite;
 }
 
+/* Slide-in-from-right for sidebar panel */
+@keyframes slide-in-from-right {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-in.slide-in-from-right {
+  animation: slide-in-from-right 0.3s ease-out forwards;
+}
+
 /* ===== Vorqenox V2 — Professional Utilities ===== */
 
 /* Breathing Neon: Cyan */

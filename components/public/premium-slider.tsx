@@ -1,155 +1,110 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { ChevronLeft, ChevronRight, Crown, Sparkles } from "lucide-react"
+import { useState } from "react"
+import { motion } from "framer-motion"
+import { Crown, Sparkles } from "lucide-react"
 import { useStore } from "@/lib/store"
 import Link from "next/link"
 
 export function PremiumSlider() {
   const { articles } = useStore()
   const premiumArticles = articles.filter((a) => a.cardType === "premium")
-  const [current, setCurrent] = useState(0)
-
-  const next = useCallback(() => {
-    setCurrent((p) => (p + 1) % premiumArticles.length)
-  }, [premiumArticles.length])
-
-  const prev = useCallback(() => {
-    setCurrent((p) => (p - 1 + premiumArticles.length) % premiumArticles.length)
-  }, [premiumArticles.length])
-
-  useEffect(() => {
-    if (premiumArticles.length <= 1) return
-    const timer = setInterval(next, 4000)
-    return () => clearInterval(timer)
-  }, [next, premiumArticles.length])
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   if (premiumArticles.length === 0) return null
 
-  const getCardStyle = (index: number) => {
-    const diff = index - current
-    const total = premiumArticles.length
-
-    // Normalize for wrap-around
-    let normalizedDiff = diff
-    if (Math.abs(diff) > total / 2) {
-      normalizedDiff = diff > 0 ? diff - total : diff + total
-    }
-
-    const isCenter = normalizedDiff === 0
-    const isLeft = normalizedDiff === -1 || (normalizedDiff === total - 1)
-    const isRight = normalizedDiff === 1 || (normalizedDiff === -(total - 1))
-
-    if (isCenter) {
-      return {
-        transform: "translateX(0) scale(1) rotateY(0deg)",
-        zIndex: 30,
-        opacity: 1,
-        filter: "none",
-      }
-    }
-    if (isLeft) {
-      return {
-        transform: "translateX(-70%) scale(0.8) rotateY(12deg)",
-        zIndex: 20,
-        opacity: 0.6,
-        filter: "brightness(0.5)",
-      }
-    }
-    if (isRight) {
-      return {
-        transform: "translateX(70%) scale(0.8) rotateY(-12deg)",
-        zIndex: 20,
-        opacity: 0.6,
-        filter: "brightness(0.5)",
-      }
-    }
-    return {
-      transform: "translateX(0) scale(0.6)",
-      zIndex: 10,
-      opacity: 0,
-      filter: "brightness(0.3)",
-    }
-  }
-
   return (
-    <section className="mx-auto max-w-7xl px-4">
-      <div className="mb-5 flex items-center gap-2">
-        <Crown className="h-5 w-5" style={{ color: "hsl(var(--neon2))" }} />
-        <h2 className="text-lg font-semibold text-foreground">Premium Collection</h2>
-        <Sparkles className="h-4 w-4" style={{ color: "hsl(var(--neon))" }} />
+    <section id="premium">
+      <div className="mb-6 flex items-center gap-2.5">
+        <Crown className="h-5 w-5 text-yellow-400" />
+        <h2 className="text-lg font-semibold text-white">Premium Collection</h2>
+        <Sparkles className="h-4 w-4 text-cyan-400" />
       </div>
 
-      {/* 3D Carousel Container */}
-      <div className="perspective-container relative mx-auto" style={{ height: "320px", maxWidth: "600px" }}>
-        {premiumArticles.map((article, index) => {
-          const style = getCardStyle(index)
-          return (
-            <div
-              key={article.id}
-              className="absolute left-1/2 top-0 w-[280px] -translate-x-1/2 transition-all duration-500 ease-out sm:w-[340px]"
-              style={{
-                ...style,
-                transformStyle: "preserve-3d",
-              }}
-            >
-              <Link href={`/article/${article.id}`}>
+      {/* 3D Perspective Stack Container */}
+      <div
+        className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        style={{ perspective: "1000px" }}
+      >
+        {premiumArticles.map((article, index) => (
+          <motion.div
+            key={article.id}
+            initial={{ opacity: 0, rotateX: 8, y: 30 }}
+            animate={{ opacity: 1, rotateX: 0, y: 0 }}
+            transition={{
+              duration: 0.5,
+              delay: index * 0.12,
+              ease: "easeOut",
+            }}
+            whileHover={{
+              rotateY: -4,
+              rotateX: 3,
+              scale: 1.03,
+              z: 40,
+              transition: { duration: 0.3, ease: "easeOut" },
+            }}
+            onHoverStart={() => setHoveredIndex(index)}
+            onHoverEnd={() => setHoveredIndex(null)}
+            style={{ transformStyle: "preserve-3d" }}
+          >
+            <Link href={`/article/${article.id}`} className="block h-full">
+              <div
+                className="group relative h-full overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-md transition-all duration-300"
+                style={{
+                  boxShadow:
+                    hoveredIndex === index
+                      ? "0 0 25px rgba(34, 211, 238, 0.15), 0 20px 60px rgba(0,0,0,0.4)"
+                      : "0 4px 30px rgba(0,0,0,0.2)",
+                  borderColor:
+                    hoveredIndex === index
+                      ? "rgba(34, 211, 238, 0.25)"
+                      : "rgba(255, 255, 255, 0.08)",
+                }}
+              >
+                {/* Card Image Area */}
                 <div
-                  className="glass overflow-hidden rounded-2xl transition-all"
+                  className="relative flex h-44 items-center justify-center overflow-hidden sm:h-52"
                   style={{
-                    border: index === current
-                      ? "1px solid hsl(var(--neon) / 0.4)"
-                      : "1px solid hsl(var(--border))",
-                    boxShadow: index === current ? "var(--neon-glow-md)" : "none",
+                    background: `linear-gradient(135deg, rgba(34, 211, 238, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%)`,
                   }}
                 >
-                  {/* Card image area */}
+                  {/* Floating neon accent */}
                   <div
-                    className="flex h-40 items-center justify-center sm:h-48"
+                    className="absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-30 blur-2xl transition-opacity duration-300"
                     style={{
-                      background: `linear-gradient(135deg, hsl(var(--neon) / 0.15), hsl(var(--neon2) / 0.08))`,
+                      background: "radial-gradient(circle, rgba(34, 211, 238, 0.4), transparent)",
+                      opacity: hoveredIndex === index ? 0.5 : 0.2,
                     }}
-                  >
-                    <span className="neon-text px-4 text-center font-mono text-sm font-bold">
-                      {article.title}
+                  />
+                  <span className="relative z-10 px-6 text-center font-mono text-sm font-bold text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]">
+                    {article.title}
+                  </span>
+                </div>
+
+                {/* Card Content */}
+                <div className="p-5">
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-yellow-400/80">
+                    {article.category}
+                  </span>
+                  <h3 className="text-sm font-semibold leading-snug text-gray-200">
+                    {article.title}
+                  </h3>
+                  <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-gray-500">
+                    {article.excerpt}
+                  </p>
+
+                  {/* Premium indicator bar */}
+                  <div className="mt-4 flex items-center gap-2">
+                    <div className="h-[2px] flex-1 rounded-full bg-gradient-to-r from-cyan-500/30 to-transparent" />
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-cyan-500/50">
+                      Premium
                     </span>
-                  </div>
-                  <div className="p-5">
-                    <span className="mb-1.5 block text-xs font-medium" style={{ color: "hsl(var(--neon2))" }}>
-                      {article.category}
-                    </span>
-                    <h3 className="text-sm font-semibold leading-snug text-foreground">
-                      {article.title}
-                    </h3>
-                    <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                      {article.excerpt}
-                    </p>
                   </div>
                 </div>
-              </Link>
-            </div>
-          )
-        })}
-
-        {/* Nav buttons */}
-        {premiumArticles.length > 1 && (
-          <>
-            <button
-              onClick={prev}
-              className="absolute left-0 top-1/2 z-40 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/80 backdrop-blur-sm transition-colors hover:bg-accent"
-              aria-label="Previous card"
-            >
-              <ChevronLeft className="h-4 w-4 text-foreground" />
-            </button>
-            <button
-              onClick={next}
-              className="absolute right-0 top-1/2 z-40 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/80 backdrop-blur-sm transition-colors hover:bg-accent"
-              aria-label="Next card"
-            >
-              <ChevronRight className="h-4 w-4 text-foreground" />
-            </button>
-          </>
-        )}
+              </div>
+            </Link>
+          </motion.div>
+        ))}
       </div>
     </section>
   )
