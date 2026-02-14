@@ -19,9 +19,9 @@ import { useState } from "react"
 
 const NAV_ITEMS = [
   {
-    href: "/admin",
-    label: "Overview",
-    subtitle: "Stats & Summary",
+    href: "/admin/dashboard",
+    label: "Dashboard",
+    subtitle: "Stats & Overview",
     icon: LayoutDashboard,
   },
   {
@@ -125,8 +125,8 @@ export function AdminSidebar() {
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
         {NAV_ITEMS.map((item) => {
           const isActive =
-            item.href === "/admin"
-              ? pathname === "/admin"
+            item.href === "/admin/dashboard"
+              ? pathname === "/admin/dashboard" || pathname === "/admin"
               : pathname.startsWith(item.href)
           return (
             <Link
@@ -193,9 +193,9 @@ export function AdminSidebar() {
       {/* Logout */}
       <div className="p-3" style={{ borderTop: "1px solid rgba(255, 255, 255, 0.05)" }}>
         <button
-          onClick={() => {
-            logout()
-            router.push("/")
+          onClick={async () => {
+            await logout()
+            router.push("/admin-gateway")
           }}
           title={collapsed ? "Logout" : undefined}
           className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm text-red-400 transition-all duration-200 hover:bg-red-500/10 ${

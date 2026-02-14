@@ -1,26 +1,14 @@
 "use client"
 
 import { useAuth } from "@/lib/auth-context"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
-import { Shield } from "lucide-react"
+import { Shield, Loader2 } from "lucide-react"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, loading } = useAuth()
-  const router = useRouter()
-  const [ready, setReady] = useState(false)
+  const { loading } = useAuth()
 
-  useEffect(() => {
-    if (loading) return // Wait until auth state is resolved
-    if (!isAuthenticated) {
-      router.replace("/admin-gateway")
-    } else {
-      setReady(true)
-    }
-  }, [isAuthenticated, loading, router])
-
-  if (loading || !ready) {
+  // Only show loading spinner while auth state is resolving
+  if (loading) {
     return (
       <div
         className="flex h-screen items-center justify-center"
@@ -37,7 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Shield className="h-7 w-7 animate-pulse text-cyan-400" />
           </div>
           <p className="font-mono text-sm tracking-widest text-cyan-400">
-            VERIFYING ACCESS...
+            LOADING DASHBOARD...
           </p>
         </div>
       </div>

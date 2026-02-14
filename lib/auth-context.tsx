@@ -11,14 +11,11 @@ interface AuthContextType {
   role: Role
   user: User | null
   loading: boolean
-  login: (password: string) => Promise<{ error?: string }>
+  login: (email: string, password: string) => Promise<{ error?: string }>
   logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
-
-const ADMIN_EMAIL = "Vorqenox@gmail.com"
-const SUPER_PASSWORD = "Elfr3onela3zamx430#"
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -51,11 +48,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  const login = async (password: string): Promise<{ error?: string }> => {
-    // Hard-coded bypass: only accept the super password
+  const login = async (email: string, password: string): Promise<{ error?: string }> => {
     const { error } = await supabase.auth.signInWithPassword({
-      email: ADMIN_EMAIL,
-      password: password,
+      email,
+      password,
     })
 
     if (error) {
