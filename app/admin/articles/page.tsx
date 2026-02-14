@@ -184,13 +184,13 @@ export default function ArticlesPage() {
         .upsert(payload, { onConflict: "id" })
 
       if (error) {
-        console.log("[v0] Supabase upsert error:", error.message)
+        // Supabase upsert failed
         setSaveStatus("error")
       } else {
         setSaveStatus("success")
       }
     } catch (err) {
-      console.log("[v0] Supabase save failed:", err)
+      // Supabase save failed
       setSaveStatus("error")
     }
 
@@ -234,11 +234,11 @@ export default function ArticlesPage() {
         </div>
         <button
           onClick={startCreate}
-          className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-shadow hover:shadow-lg"
+          className="flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold transition-all duration-200 hover:scale-105"
           style={{
             backgroundColor: "hsl(var(--neon))",
             color: "#050505",
-            boxShadow: "var(--neon-glow-sm)",
+            boxShadow: "0 0 15px rgba(34, 211, 238, 0.2)",
           }}
         >
           <Plus className="h-4 w-4" />
@@ -252,12 +252,12 @@ export default function ArticlesPage() {
       {creating && (
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 px-4 py-10 backdrop-blur-sm">
           <div
-            className="relative w-full max-w-3xl rounded-2xl border border-white/5 p-6"
+            className="relative w-full max-w-3xl rounded-2xl border border-white/10 p-6"
             style={{
               background: "hsla(220, 15%, 7%, 0.92)",
               backdropFilter: "blur(24px)",
               WebkitBackdropFilter: "blur(24px)",
-              boxShadow: "var(--neon-glow-md)",
+              boxShadow: "0 0 30px rgba(34, 211, 238, 0.08), 0 25px 50px -12px rgba(0,0,0,0.6)",
             }}
           >
             {/* Modal header */}
@@ -350,7 +350,7 @@ export default function ArticlesPage() {
                   return (
                     <div
                       key={i}
-                      className="flex items-center gap-3 rounded-xl border border-white/5 px-4 py-3"
+                      className="flex items-center gap-3 rounded-2xl border border-white/10 px-4 py-3"
                       style={{ background: "hsla(220, 15%, 10%, 0.5)" }}
                     >
                       <div
@@ -379,7 +379,7 @@ export default function ArticlesPage() {
               <SectionLabel label="Professional Toggles" />
 
               <div
-                className="space-y-4 rounded-xl border border-white/5 p-5"
+                className="space-y-4 rounded-2xl border border-white/10 p-5"
                 style={{ background: "hsla(220, 15%, 8%, 0.6)" }}
               >
                 {/* Ads Status */}
@@ -550,11 +550,11 @@ export default function ArticlesPage() {
               <button
                 onClick={handleSave}
                 disabled={saving || !form.title.trim()}
-                className="flex w-full items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold transition-all disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-semibold transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
                 style={{
                   backgroundColor: "hsl(var(--neon))",
                   color: "#050505",
-                  boxShadow: "var(--neon-glow-sm)",
+                  boxShadow: "0 0 15px rgba(34, 211, 238, 0.2)",
                 }}
               >
                 {saving ? (
@@ -578,7 +578,7 @@ export default function ArticlesPage() {
       {/*  ARTICLES TABLE                                                */}
       {/* ============================================================= */}
       <div
-        className="overflow-hidden rounded-xl border border-white/5"
+        className="overflow-hidden rounded-2xl border border-white/10"
         style={{
           background: "hsla(220, 15%, 7%, 0.6)",
           backdropFilter: "blur(16px)",
@@ -652,7 +652,10 @@ export default function ArticlesPage() {
                       e.stopPropagation()
                       startEdit(article)
                     }}
-                    className="flex h-7 w-7 items-center justify-center rounded-md border border-white/5 text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+                    className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 text-gray-400 transition-all duration-200 hover:scale-105 hover:bg-white/5 hover:text-white"
+                    style={{ boxShadow: "0 0 8px rgba(34, 211, 238, 0)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 0 15px rgba(34, 211, 238, 0.2)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "0 0 8px rgba(34, 211, 238, 0)")}
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
@@ -661,7 +664,7 @@ export default function ArticlesPage() {
                       e.stopPropagation()
                       handleDelete(article.id)
                     }}
-                    className="flex h-7 w-7 items-center justify-center rounded-md border border-white/5 text-gray-400 transition-colors hover:border-red-500/20 hover:bg-red-500/5 hover:text-red-400"
+                    className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 text-gray-400 transition-all duration-200 hover:scale-105 hover:border-red-500/20 hover:bg-red-500/5 hover:text-red-400"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -788,7 +791,7 @@ function FormField({
   small?: boolean
   fullWidth?: boolean
 }) {
-  const cls = `w-full rounded-lg border border-white/5 bg-white/[0.03] text-sm text-white placeholder:text-gray-600 focus:border-white/10 focus:outline-none focus:ring-1 focus:ring-white/10 ${
+  const cls = `w-full rounded-2xl border border-white/10 bg-white/5 text-sm text-white placeholder:text-gray-600 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 transition-colors duration-200 ${
     small ? "px-3 py-2 text-xs" : "px-4 py-2.5"
   } ${fullWidth ? "sm:col-span-2" : ""}`
 
@@ -872,7 +875,7 @@ function OptionPill({
     <button
       type="button"
       onClick={onClick}
-      className="rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all"
+      className="rounded-2xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105"
       style={{
         backgroundColor: active ? `color-mix(in srgb, ${color} 12%, transparent)` : "hsla(220, 15%, 12%, 0.5)",
         color: active ? color : "rgb(107, 114, 128)",

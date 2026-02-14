@@ -109,7 +109,7 @@ export default function AdminOverview() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="group relative overflow-hidden rounded-xl border border-white/5 p-5 transition-all duration-300 hover:border-white/10"
+            className="group relative overflow-hidden rounded-2xl border border-white/10 p-5 transition-all duration-300 hover:border-white/15"
             style={{
               background: "hsla(220, 15%, 7%, 0.7)",
               backdropFilter: "blur(16px)",
@@ -155,7 +155,7 @@ export default function AdminOverview() {
         {quickStats.map((stat) => (
           <div
             key={stat.label}
-            className="flex items-center gap-4 rounded-xl border border-white/5 px-5 py-4"
+            className="flex items-center gap-4 rounded-2xl border border-white/10 px-5 py-4"
             style={{
               background: "hsla(220, 15%, 7%, 0.5)",
               backdropFilter: "blur(12px)",
@@ -185,7 +185,7 @@ export default function AdminOverview() {
 
       {/* Recent Articles */}
       <div
-        className="rounded-xl border border-white/5 p-6"
+        className="rounded-2xl border border-white/10 p-6"
         style={{
           background: "hsla(220, 15%, 7%, 0.6)",
           backdropFilter: "blur(16px)",
