@@ -20,21 +20,25 @@ const ARTICLES_PER_PAGE = 6
 interface ArticleRow {
   id: string
   title: string
-  excerpt: string
-  image: string | null
-  category: string
+  slug: string
+  content: string
+  main_image: string | null
+  specs: Array<{ key: string; value: string }> | null
   card_type: string
   created_at: string
   show_landing_page: boolean
-  info_boxes: Array<{ label: string; value: string; icon: string }>
+  is_visible: boolean
+  seo_metadata: { description?: string; keywords?: string } | null
+  order_index: number
 }
 
 async function fetchArticles(): Promise<ArticleRow[]> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from("articles")
-    .select("id, title, excerpt, image, category, card_type, created_at, show_landing_page, info_boxes")
-    .order("created_at", { ascending: false })
+    .select("id, title, slug, content, main_image, specs, card_type, created_at, show_landing_page, is_visible, seo_metadata, order_index")
+    .eq("is_visible", true)
+    .order("order_index", { ascending: true })
 
   if (error) throw error
   return data ?? []
@@ -45,10 +49,17 @@ export function ArticlesGrid() {
   const [activeTab, setActiveTab] = useState<string>("latest")
   const [page, setPage] = useState(1)
 
+  // Helper: extract category from specs or seo_metadata
+  const getCategory = (article: ArticleRow): string => {
+    const catSpec = article.specs?.find((s) => s.key === "Category")
+    if (catSpec) return catSpec.value
+    return "General"
+  }
+
   // Get unique categories
   const categories = useMemo(() => {
     if (!articles) return []
-    const cats = new Set(articles.map((a) => a.category))
+    const cats = new Set(articles.map((a) => getCategory(a)))
     return Array.from(cats)
   }, [articles])
 
@@ -59,7 +70,7 @@ export function ArticlesGrid() {
       return [...articles].sort((a, b) => b.created_at.localeCompare(a.created_at))
     }
     if (activeTab === "all") return articles
-    return articles.filter((a) => a.category === activeTab)
+    return articles.filter((a) => getCategory(a) === activeTab)
   }, [articles, activeTab])
 
   const totalPages = Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE)
@@ -132,9 +143,9 @@ export function ArticlesGrid() {
             <Link key={article.id} href={href} className="group">
               <div className="h-full overflow-hidden rounded-2xl backdrop-blur-md border border-white/10 shadow-[0_0_15px_rgba(255,215,0,0.3)] bg-white/[0.02] transition-all duration-300 hover:border-cyan-500/20 hover:shadow-[0_0_25px_rgba(255,215,0,0.4)]">
                 {/* Image or gradient */}
-                {article.image ? (
+                {article.main_image ? (
                   <img
-                    src={article.image}
+                    src={article.main_image}
                     alt={article.title}
                     className="h-40 w-full object-cover"
                     crossOrigin="anonymous"
@@ -157,7 +168,7 @@ export function ArticlesGrid() {
                   {/* Category + Date Row */}
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-[10px] font-semibold uppercase tracking-wider text-cyan-400">
-                      {article.category}
+                      {getCategory(article)}
                     </span>
                     <span className="text-[10px] text-gray-600">{article.created_at}</span>
                   </div>
@@ -167,34 +178,32 @@ export function ArticlesGrid() {
                     {article.title}
                   </h3>
 
-                  {/* Excerpt */}
+                  {/* Excerpt (first ~120 chars of content) */}
                   <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-gray-500">
-                    {article.excerpt}
+                    {article.content?.slice(0, 120)}...
                   </p>
 
-                  {/* 4-Box Info Grid */}
-                  <div className="mt-4 grid grid-cols-2 gap-2">
-                    <InfoBox
-                      icon={<Tag className="h-3.5 w-3.5 text-cyan-400" />}
-                      label="Version"
-                      value="v2.1"
-                    />
-                    <InfoBox
-                      icon={<Monitor className="h-3.5 w-3.5 text-cyan-400" />}
-                      label="Platform"
-                      value="Multi"
-                    />
-                    <InfoBox
-                      icon={<HardDrive className="h-3.5 w-3.5 text-cyan-400" />}
-                      label="Size"
-                      value="4.2 MB"
-                    />
-                    <InfoBox
-                      icon={<Shield className="h-3.5 w-3.5 text-cyan-400" />}
-                      label="License"
-                      value="Premium"
-                    />
-                  </div>
+                  {/* 4-Box Info Grid from specs */}
+                  {article.specs && article.specs.length > 0 && (
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      {article.specs.slice(0, 4).map((spec, i) => {
+                        const icons = [
+                          <Tag key="t" className="h-3.5 w-3.5 text-cyan-400" />,
+                          <Monitor key="m" className="h-3.5 w-3.5 text-cyan-400" />,
+                          <HardDrive key="h" className="h-3.5 w-3.5 text-cyan-400" />,
+                          <Shield key="s" className="h-3.5 w-3.5 text-cyan-400" />,
+                        ]
+                        return (
+                          <InfoBox
+                            key={i}
+                            icon={icons[i % 4]}
+                            label={spec.key}
+                            value={spec.value}
+                          />
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
             </Link>

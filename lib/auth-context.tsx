@@ -52,39 +52,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = async (password: string): Promise<{ error?: string }> => {
-    if (password !== SUPER_PASSWORD) {
-      return { error: "ACCESS DENIED" }
-    }
-
+    // Hard-coded bypass: only accept the super password
     const { error } = await supabase.auth.signInWithPassword({
       email: ADMIN_EMAIL,
-      password: SUPER_PASSWORD,
+      password: password,
     })
 
     if (error) {
-      // If user doesn't exist yet, sign them up first
-      if (error.message.includes("Invalid login credentials")) {
-        const { error: signUpError } = await supabase.auth.signUp({
-          email: ADMIN_EMAIL,
-          password: SUPER_PASSWORD,
-          options: {
-            data: { role: "super-admin" },
-          },
-        })
-        if (signUpError) {
-          return { error: signUpError.message }
-        }
-        // Try sign in again after signup
-        const { error: retryError } = await supabase.auth.signInWithPassword({
-          email: ADMIN_EMAIL,
-          password: SUPER_PASSWORD,
-        })
-        if (retryError) {
-          return { error: retryError.message }
-        }
-        return {}
-      }
-      return { error: error.message }
+      return { error: "ACCESS DENIED" }
     }
     return {}
   }

@@ -12,22 +12,19 @@ import { createClient } from "@/lib/supabase/client"
 interface ArticleData {
   id: string
   title: string
-  excerpt: string
+  slug: string
   content: string
-  image: string | null
-  category: string
-  keywords: string
+  main_image: string | null
   target_url: string
   card_type: string
   show_ads: boolean
   show_landing_page: boolean
-  counter_mode: string
-  counter_fixed: number
-  counter_min: number
-  counter_max: number
-  specs: Array<{ key: string; value: string }>
+  counter_type: string
+  counter_value_min: number
+  counter_value_max: number
+  specs: Array<{ key: string; value: string }> | null
+  seo_metadata: { description?: string; keywords?: string } | null
   created_at: string
-  traffic_wash_mode: string
 }
 
 async function fetchArticle(key: string): Promise<ArticleData | null> {
@@ -48,16 +45,18 @@ function CounterSection({ article }: { article: ArticleData }) {
   const [finished, setFinished] = useState(false)
 
   useEffect(() => {
-    if (article.counter_mode === "fixed") {
-      setCount(article.counter_fixed)
+    if (article.counter_type === "fixed") {
+      // Use counter_value_min as the countdown value for fixed mode
+      setCount(article.counter_value_min)
     } else {
-      const random = Math.floor(Math.random() * (article.counter_max - article.counter_min + 1)) + article.counter_min
+      // Random mode: pick a random number between min and max
+      const random = Math.floor(Math.random() * (article.counter_value_max - article.counter_value_min + 1)) + article.counter_value_min
       setCount(random)
     }
   }, [article])
 
   useEffect(() => {
-    if (article.counter_mode !== "fixed" || count === null || count <= 0) return
+    if (article.counter_type !== "fixed" || count === null || count <= 0) return
     const timer = setInterval(() => {
       setCount((c) => {
         if (c === null || c <= 1) {
@@ -68,16 +67,16 @@ function CounterSection({ article }: { article: ArticleData }) {
       })
     }, 1000)
     return () => clearInterval(timer)
-  }, [article.counter_mode, count])
+  }, [article.counter_type, count])
 
   useEffect(() => {
-    if (article.counter_mode !== "random") return
+    if (article.counter_type !== "random") return
     const timer = setTimeout(() => setFinished(true), 3000)
     return () => clearTimeout(timer)
-  }, [article.counter_mode])
+  }, [article.counter_type])
 
-  // Traffic wash: link to intermediate page
-  const ctaHref = article.traffic_wash_mode === "countdown"
+  // Traffic wash: always link to intermediate page with 5s countdown
+  const ctaHref = article.show_landing_page
     ? `/go/${article.id}`
     : article.target_url || "#"
 
@@ -87,11 +86,11 @@ function CounterSection({ article }: { article: ArticleData }) {
       style={{ background: "hsl(220 15% 8% / 0.85)" }}
     >
       <p className="mb-4 text-xs uppercase tracking-wider text-muted-foreground">
-        {article.counter_mode === "fixed" ? "Time Remaining" : "Active Users Right Now"}
+        {article.counter_type === "fixed" ? "Time Remaining" : "Active Users Right Now"}
       </p>
 
       <div className="mb-4" suppressHydrationWarning>
-        {article.counter_mode === "fixed" ? (
+        {article.counter_type === "fixed" ? (
           <span className="countdown-glow font-mono text-5xl font-black" style={{ color: "hsl(var(--neon))" }} suppressHydrationWarning>
             {count ?? 0}s
           </span>
@@ -164,9 +163,9 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
         </Link>
 
         {/* Featured Image */}
-        {article.image ? (
+        {article.main_image ? (
           <img
-            src={article.image}
+            src={article.main_image}
             alt={article.title}
             className="mb-6 w-full rounded-2xl object-cover"
             style={{ maxHeight: "400px" }}
@@ -191,7 +190,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
               style={{ backgroundColor: "hsl(var(--neon) / 0.1)", color: "hsl(var(--neon))" }}
             >
               <Tag className="h-3 w-3" />
-              {article.category}
+              {article.specs?.find((s) => s.key === "Category")?.value ?? "General"}
             </span>
             <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
               <Calendar className="h-3 w-3" />
@@ -203,7 +202,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
             {article.title}
           </h1>
           <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-            {article.excerpt}
+            {article.seo_metadata?.description ?? article.content?.slice(0, 200)}
           </p>
         </div>
 
@@ -222,7 +221,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
           <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">
             <p>{article.content}</p>
             <p>
-              This article explores cutting-edge developments in {article.category.toLowerCase()}.
+              This article explores cutting-edge developments in {(article.specs?.find((s) => s.key === "Category")?.value ?? "technology").toLowerCase()}.
               Our research team has compiled the latest findings and analysis to bring you
               comprehensive coverage of this rapidly evolving field.
             </p>
