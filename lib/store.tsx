@@ -77,6 +77,7 @@ export interface SiteSettings {
   contactEmail: string
   privacyText: string
   policyText: string
+  neonHue: number
   facebookPixel: string
   tiktokPixel: string
   snapPixel: string
@@ -427,6 +428,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     contactEmail: "admin@vorqenox.com",
     privacyText: "Your privacy is our priority. We collect minimal data necessary for providing our services.",
     policyText: "By using this platform, you agree to our terms of service and content policies.",
+    neonHue: 185,
     facebookPixel: "",
     tiktokPixel: "",
     snapPixel: "",
